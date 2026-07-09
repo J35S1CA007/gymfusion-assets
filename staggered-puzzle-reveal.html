@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staggered Puzzle Reveal</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f16;
+      --panel: rgba(17, 23, 35, 0.82);
+      --text: #eef2ff;
+      --muted: #9aa6bf;
+      --accent: #7dd3fc;
+      --tile-gap: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(125, 211, 252, 0.18), transparent 35%),
+        linear-gradient(180deg, #111827, var(--bg));
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .wrap {
+      width: min(1200px, 100%);
+      display: grid;
+      gap: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 48px);
+      letter-spacing: -0.04em;
+    }
+
+    p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: var(--accent);
+      color: #082032;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 24px;
+      padding: 16px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--tile-gap);
+      grid-template-columns: repeat(6, 1fr);
+      aspect-ratio: 3 / 2;
+    }
+
+    .tile {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transform: scale(0.86) rotate(-2deg);
+      transition: opacity 420ms ease, transform 420ms ease, filter 420ms ease;
+      filter: blur(8px);
+    }
+
+    .tile.show {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+      filter: blur(0);
+    }
+
+    .empty {
+      color: var(--muted);
+      min-height: 180px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed rgba(148, 163, 184, 0.3);
+      border-radius: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div>
+        <h1>Staggered Puzzle Reveal</h1>
+        <p>Tiles load from jsDelivr and reveal in sequence.</p>
+      </div>
+      <div class="controls">
+        <button id="run">Run reveal</button>
+      </div>
+    </header>
+
+    <section class="board">
+      <article class="card">
+        <h2>Group 1</h2>
+        <div id="group1" class="grid"></div>
+        <div id="group1-empty" class="empty">No group-1 tiles are in this repo yet.</div>
+      </article>
+
+      <article class="card">
+        <h2>Group 2</h2>
+        <div id="group2" class="grid"></div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const repo = 'J35S1CA007/gymfusion-assets';
+    const base = `https://cdn.jsdelivr.net/gh/${repo}@main`;
+    const rows = 4;
+    const cols = 6;
+
+    const group2 = Array.from({ length: rows }, (_, r) =>
+      Array.from({ length: cols }, (_, c) =>
+        `group-2-pics/group-2-people-strength-equipment_${String(r + 1).padStart(2, '0')}_${String(c + 1).padStart(2, '0')}.png`
+      )
+    ).flat();
+
+    const group1 = [];
+
+    function tileUrl(path) {
+      return `${base}/${path}`;
+    }
+
+    function makeGrid(el, files) {
+      el.innerHTML = '';
+      return files.map((file) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.dataset.src = tileUrl(file);
+        el.appendChild(tile);
+        return tile;
+      });
+    }
+
+    async function preload(tile) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          tile.style.backgroundImage = `url("${img.src}")`;
+          resolve();
+        };
+        img.onerror = resolve;
+        img.src = tile.dataset.src;
+      });
+    }
+
+    async function revealTiles(tiles) {
+      for (let i = 0; i < tiles.length; i += 1) {
+        await preload(tiles[i]);
+        requestAnimationFrame(() => tiles[i].classList.add('show'));
+        await new Promise((r) => setTimeout(r, 70));
+      }
+    }
+
+    const group1El = document.getElementById('group1');
+    const group2El = document.getElementById('group2');
+    const group1Empty = document.getElementById('group1-empty');
+
+    const group1Tiles = makeGrid(group1El, group1);
+    const group2Tiles = makeGrid(group2El, group2);
+
+    if (group1Tiles.length === 0) group1Empty.hidden = false;
+    else group1Empty.hidden = true;
+
+    document.getElementById('run').addEventListener('click', async () => {
+      for (const tile of [...group1Tiles, ...group2Tiles]) tile.classList.remove('show');
+      if (group1Tiles.length) await revealTiles(group1Tiles);
+      await revealTiles(group2Tiles);
+    });
+  </script>
+</body>
+</html>
