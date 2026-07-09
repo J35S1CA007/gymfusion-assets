@@ -83,6 +83,9 @@
 
   <script>
     (() => {
+      const runId = Date.now();
+      window.__gymfusionPuzzleRevealRunId = runId;
+
       const tilesAcross = 6;
       const tilesDown = 4;
       const visibleCols = [1, 2, 3, 4];
@@ -98,6 +101,8 @@
       const layer = document.getElementById("puzzle-layer");
       const fadeLayer = document.getElementById("fade-layer");
       if (!panel || !slide || !layer || !fadeLayer) return;
+      const isCurrentRun = () => window.__gymfusionPuzzleRevealRunId === runId;
+      const wait = (duration) => new Promise((resolve) => setTimeout(resolve, duration));
 
       const images = [
         {
@@ -183,6 +188,10 @@
       const build = () => makeTiles();
 
       const fadeOut = () => new Promise((resolve) => {
+        if (!isCurrentRun()) {
+          resolve();
+          return;
+        }
         const animation = fadeLayer.animate(
           [{ opacity: 0 }, { opacity: 1 }],
           { duration: fadeMs, easing: "ease-in-out", fill: "forwards" }
@@ -200,15 +209,18 @@
 
       const run = async () => {
         const tiles = panel.tiles;
-        while (true) {
+        while (isCurrentRun()) {
           for (const image of images) {
+            if (!isCurrentRun()) return;
             slide.src = image.src;
             resetTiles(tiles);
             setTilesForSlide(image, tiles);
             fadeLayer.getAnimations().forEach((animation) => animation.cancel());
             fadeLayer.style.opacity = "0";
             await revealTiles(tiles, image);
-            await new Promise((r) => setTimeout(r, image.holdMs));
+            if (!isCurrentRun()) return;
+            await wait(image.holdMs);
+            if (!isCurrentRun()) return;
             await fadeOut();
           }
         }
