@@ -18,18 +18,16 @@
       place-items: center;
       width: 100%;
       height: 100%;
-      padding: 6%;
       background: #000;
       overflow: hidden;
     }
     .frame {
       position: relative;
-      width: min(100%, calc(100% / 0.75));
-      aspect-ratio: 3 / 2;
+      width: min(100%, 100vh);
+      aspect-ratio: 1 / 1;
       max-height: 100%;
       overflow: hidden;
       background: #000;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
     }
     .slide {
       position: absolute;
@@ -87,6 +85,7 @@
     (() => {
       const tilesAcross = 6;
       const tilesDown = 4;
+      const visibleCols = [1, 2, 3, 4];
       const tileStaggerMs = 140;
       const tileRevealMs = 600;
       const holdMs = 1400;
@@ -127,12 +126,12 @@
         layer.innerHTML = "";
         const tiles = [];
         for (let row = 0; row < tilesDown; row += 1) {
-          for (let col = 0; col < tilesAcross; col += 1) {
+          visibleCols.forEach((col, visibleCol) => {
             const tile = document.createElement("div");
             tile.className = "puzzle-tile";
-            tile.style.left = `${(col / tilesAcross) * 100}%`;
+            tile.style.left = `${(visibleCol / visibleCols.length) * 100}%`;
             tile.style.top = `${(row / tilesDown) * 100}%`;
-            tile.style.width = `${100 / tilesAcross}%`;
+            tile.style.width = `${100 / visibleCols.length}%`;
             tile.style.height = `${100 / tilesDown}%`;
             tile.dataset.row = String(row);
             tile.dataset.col = String(col);
@@ -142,7 +141,7 @@
             tile.appendChild(img);
             layer.appendChild(tile);
             tiles.push(tile);
-          }
+          });
         }
         return tiles;
       };
