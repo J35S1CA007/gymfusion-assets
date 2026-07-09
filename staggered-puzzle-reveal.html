@@ -14,17 +14,22 @@
     }
     * { box-sizing: border-box; }
     .stage {
+      display: grid;
+      place-items: center;
       width: 100%;
       height: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
+      padding: 6%;
       background: #000;
-    }
-    .panel {
-      position: relative;
       overflow: hidden;
-      background: #0a0f18;
+    }
+    .frame {
+      position: relative;
+      width: min(100%, calc(100% / 0.75));
+      aspect-ratio: 3 / 2;
+      max-height: 100%;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
     }
     .slide {
       position: absolute;
@@ -32,11 +37,10 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      opacity: 1;
+      opacity: 0;
+      visibility: hidden;
       z-index: 1;
     }
-    .slide.photo-1 { object-position: center 44%; }
-    .slide.photo-2 { object-position: center 54%; }
     .puzzle-layer {
       position: absolute;
       inset: 0;
@@ -46,72 +50,80 @@
     }
     .puzzle-tile {
       position: absolute;
-      background-repeat: no-repeat;
-      background-size: cover;
+      width: calc(100% / 6);
+      height: calc(100% / 4);
+      background: #000;
       opacity: 0;
       transform: scale(0.96);
       will-change: transform, opacity;
       filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.92));
     }
-    .puzzle-tile.is-visible {
-      opacity: 1;
-      transform: scale(1);
+    .puzzle-tile img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
     }
-    .label {
+    .fade-layer {
       position: absolute;
-      left: 16px;
-      top: 16px;
-      z-index: 6;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.35);
-      color: #fff;
-      font: 600 12px/1.2 system-ui, sans-serif;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
     }
   </style>
 </head>
 <body>
   <section class="stage" aria-label="Staggered puzzle reveal">
-    <div class="panel" id="panel-1">
-      <img class="slide photo-1" src="https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/group-1-pics/group-smiling-splits-training-img-final_01_01.png" alt="Group 1 puzzle image" decoding="async" />
-      <div class="puzzle-layer" id="puzzle-layer-1" aria-hidden="true"></div>
-      <div class="label">Group 1</div>
-    </div>
-    <div class="panel" id="panel-2">
-      <img class="slide photo-2" src="https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/group-2-pics/group-2-people-strength-equipment_01_01.png" alt="Group 2 puzzle image" decoding="async" />
-      <div class="puzzle-layer" id="puzzle-layer-2" aria-hidden="true"></div>
-      <div class="label">Group 2</div>
+    <div class="frame" id="panel">
+      <img class="slide" id="slide" src="https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/group-1-pics/group-smiling-splits-training-img-final_01_01.png" alt="Puzzle image" decoding="async" />
+      <div class="puzzle-layer" id="puzzle-layer" aria-hidden="true"></div>
+      <div class="fade-layer" id="fade-layer" aria-hidden="true"></div>
     </div>
   </section>
 
   <script>
     (() => {
-      const tilesAcross = 4;
+      const tilesAcross = 6;
       const tilesDown = 4;
-      const tileStaggerMs = 70;
-      const tileRevealMs = 340;
-      const cadenceMs = 2200;
+      const tileStaggerMs = 140;
+      const tileRevealMs = 600;
+      const holdMs = 1400;
+      const fadeMs = 700;
       const knot = 0.22;
       const bump = 0.18;
 
-      const panels = [
+      const panel = document.getElementById("panel");
+      const slide = document.getElementById("slide");
+      const layer = document.getElementById("puzzle-layer");
+      const fadeLayer = document.getElementById("fade-layer");
+      if (!panel || !slide || !layer || !fadeLayer) return;
+
+      const images = [
         {
-          panel: document.getElementById("panel-1"),
-          slide: document.querySelector("#panel-1 .slide"),
-          layer: document.getElementById("puzzle-layer-1")
+          prefix: "group-1-pics",
+          tilePrefix: "group-smiling-splits-training-img-final",
+          src: "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/group-1-pics/group-smiling-splits-training-img-final_01_01.png",
+          label: "Group 1",
+          objectPosition: "center 44%",
+          tileStaggerMs: 140,
+          tileRevealMs: 600,
+          holdMs: 1400
         },
         {
-          panel: document.getElementById("panel-2"),
-          slide: document.querySelector("#panel-2 .slide"),
-          layer: document.getElementById("puzzle-layer-2")
+          prefix: "group-2-pics",
+          tilePrefix: "group-2-people-strength-equipment",
+          src: "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/group-2-pics/group-2-people-strength-equipment_01_01.png",
+          label: "Group 2",
+          objectPosition: "center 54%",
+          tileStaggerMs: 140,
+          tileRevealMs: 600,
+          holdMs: 1400
         }
       ];
 
-      if (panels.some((p) => !p.panel || !p.slide || !p.layer)) return;
-
-      const makeTiles = (layer) => {
+      const makeTiles = () => {
         layer.innerHTML = "";
         const tiles = [];
         for (let row = 0; row < tilesDown; row += 1) {
@@ -124,6 +136,10 @@
             tile.style.height = `${100 / tilesDown}%`;
             tile.dataset.row = String(row);
             tile.dataset.col = String(col);
+            const img = document.createElement("img");
+            img.alt = "";
+            img.decoding = "async";
+            tile.appendChild(img);
             layer.appendChild(tile);
             tiles.push(tile);
           }
@@ -131,44 +147,31 @@
         return tiles;
       };
 
-      const getPiecePath = (row, col) => {
-        const left = col === 0 ? 0 : -bump;
-        const right = col === tilesAcross - 1 ? 0 : (col % 2 === 0 ? bump : -bump);
-        const top = row === 0 ? 0 : -bump;
-        const bottom = row === tilesDown - 1 ? 0 : (row % 2 === 0 ? bump : -bump);
-        const x0 = `${(0 + left) * 100}%`;
-        const x1 = `${(0.5 - knot) * 100}%`;
-        const x2 = `${(0.5 + knot) * 100}%`;
-        const x3 = `${(1 + right) * 100}%`;
-        const y0 = `${(0 + top) * 100}%`;
-        const y1 = `${(0.5 - knot) * 100}%`;
-        const y2 = `${(0.5 + knot) * 100}%`;
-        const y3 = `${(1 + bottom) * 100}%`;
-        return `path("M ${x0} ${y1} C ${x0} ${y0}, ${x1} ${y0}, ${x1} ${y0} C ${x1} ${y0}, ${x1} ${y1}, ${x2} ${y1} C ${x3} ${y1}, ${x3} ${y0}, ${x3} ${y0} C ${x3} ${y0}, ${x3} ${y2}, ${x2} ${y2} C ${x1} ${y2}, ${x1} ${y3}, ${x1} ${y3} C ${x1} ${y3}, ${x0} ${y3}, ${x0} ${y2} Z")`;
-      };
+      const tileFilename = (tilePrefix, row, col) =>
+        `${tilePrefix}_${String(row + 1).padStart(2, "0")}_${String(col + 1).padStart(2, "0")}.png`;
 
-      const setTilesForSlide = (slide, tiles) => {
-        const src = slide.getAttribute("src") || "";
-        const position = slide.style.objectPosition || getComputedStyle(slide).objectPosition || "center center";
+      const setTilesForSlide = (image, tiles) => {
         tiles.forEach((tile) => {
-          tile.style.backgroundImage = `url("${src}")`;
-          tile.style.backgroundPosition = position;
-          tile.style.clipPath = getPiecePath(Number(tile.dataset.row), Number(tile.dataset.col));
+          const row = Number(tile.dataset.row);
+          const col = Number(tile.dataset.col);
+          const img = tile.querySelector("img");
+          if (img) {
+            img.src = `https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/${image.prefix}/${tileFilename(image.tilePrefix, row, col)}`;
+          }
         });
       };
 
-      const revealTiles = async (tiles) => {
+      const revealTiles = async (tiles, image) => {
+        const order = tiles.map((_, i) => i).sort(() => Math.random() - 0.5);
         const animations = tiles.map((tile, i) => {
-          const row = Math.floor(i / tilesAcross);
-          const col = i % tilesAcross;
-          const delay = (row * tilesAcross + col) * tileStaggerMs;
+          const delay = order.indexOf(i) * image.tileStaggerMs;
           return tile.animate(
             [
-              { opacity: 0, transform: "scale(0.92)" },
+              { opacity: 0, transform: "scale(0.9)" },
               { opacity: 1, transform: "scale(1)" }
             ],
             {
-              duration: tileRevealMs,
+              duration: image.tileRevealMs,
               delay,
               easing: "cubic-bezier(0.22, 1, 0.36, 1)",
               fill: "forwards"
@@ -178,29 +181,42 @@
         await Promise.all(animations.map((a) => a.finished.catch(() => undefined)));
       };
 
-      const build = () => {
-        panels.forEach((panel) => {
-          panel.tiles = makeTiles(panel.layer);
-          setTilesForSlide(panel.slide, panel.tiles);
+      const build = () => makeTiles();
+
+      const fadeOut = () => new Promise((resolve) => {
+        const animation = fadeLayer.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: fadeMs, easing: "ease-in-out", fill: "forwards" }
+        );
+        animation.finished.then(resolve).catch(resolve);
+      });
+
+      const resetTiles = (tiles) => {
+        tiles.forEach((tile) => {
+          tile.getAnimations().forEach((animation) => animation.cancel());
+          tile.style.opacity = "0";
+          tile.style.transform = "scale(0.9)";
         });
       };
 
       const run = async () => {
-        for (const panel of panels) {
-          panel.tiles.forEach((tile) => {
-            tile.style.opacity = "0";
-            tile.style.transform = "scale(0.96)";
-          });
-        }
-        for (const panel of panels) {
-          await revealTiles(panel.tiles);
-          await new Promise((r) => setTimeout(r, cadenceMs / 2));
+        const tiles = panel.tiles;
+        while (true) {
+          for (const image of images) {
+            slide.src = image.src;
+            resetTiles(tiles);
+            setTilesForSlide(image, tiles);
+            fadeLayer.getAnimations().forEach((animation) => animation.cancel());
+            fadeLayer.style.opacity = "0";
+            await revealTiles(tiles, image);
+            await new Promise((r) => setTimeout(r, image.holdMs));
+            await fadeOut();
+          }
         }
       };
 
-      build();
+      panel.tiles = build();
       run();
-      setInterval(run, cadenceMs * 2);
     })();
   </script>
 </body>
