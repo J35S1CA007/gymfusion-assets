@@ -83,8 +83,23 @@
 
   <script>
     (() => {
-      const runId = Date.now();
-      window.__gymfusionPuzzleRevealRunId = runId;
+      if (window.__gymfusionPuzzleRevealController) {
+        window.__gymfusionPuzzleRevealController.stop();
+      }
+
+      const controller = {
+        stopped: false,
+        timers: [],
+        animations: [],
+        stop() {
+          this.stopped = true;
+          this.timers.forEach((timer) => clearTimeout(timer));
+          this.animations.forEach((animation) => animation.cancel());
+          this.timers = [];
+          this.animations = [];
+        }
+      };
+      window.__gymfusionPuzzleRevealController = controller;
 
       const tilesAcross = 6;
       const tilesDown = 4;
@@ -101,8 +116,11 @@
       const layer = document.getElementById("puzzle-layer");
       const fadeLayer = document.getElementById("fade-layer");
       if (!panel || !slide || !layer || !fadeLayer) return;
-      const isCurrentRun = () => window.__gymfusionPuzzleRevealRunId === runId;
-      const wait = (duration) => new Promise((resolve) => setTimeout(resolve, duration));
+      const isCurrentRun = () => window.__gymfusionPuzzleRevealController === controller && !controller.stopped;
+      const wait = (duration) => new Promise((resolve) => {
+        const timer = setTimeout(resolve, duration);
+        controller.timers.push(timer);
+      });
 
       const images = [
         {
@@ -182,7 +200,9 @@
             }
           );
         });
+        controller.animations.push(...animations);
         await Promise.all(animations.map((a) => a.finished.catch(() => undefined)));
+        controller.animations = controller.animations.filter((animation) => !animations.includes(animation));
       };
 
       const build = () => makeTiles();
@@ -196,6 +216,7 @@
           [{ opacity: 0 }, { opacity: 1 }],
           { duration: fadeMs, easing: "ease-in-out", fill: "forwards" }
         );
+        controller.animations.push(animation);
         animation.finished.then(resolve).catch(resolve);
       });
 
@@ -222,6 +243,7 @@
             await wait(image.holdMs);
             if (!isCurrentRun()) return;
             await fadeOut();
+            controller.animations = controller.animations.filter((animation) => animation.playState !== "finished");
           }
         }
       };
