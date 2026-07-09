@@ -141,7 +141,7 @@
       <article class="card">
         <h2>Group 1</h2>
         <div id="group1" class="grid"></div>
-        <div id="group1-empty" class="empty">No group-1 tiles are in this repo yet.</div>
+        <div id="group1-empty" class="empty" hidden>No group-1 tiles are in this repo yet.</div>
       </article>
 
       <article class="card">
@@ -157,13 +157,17 @@
     const rows = 4;
     const cols = 6;
 
+    const group1 = Array.from({ length: rows }, (_, r) =>
+      Array.from({ length: cols }, (_, c) =>
+        `group-1-pics/group-smiling-splits-training-img-final_${String(r + 1).padStart(2, '0')}_${String(c + 1).padStart(2, '0')}.png`
+      )
+    ).flat();
+
     const group2 = Array.from({ length: rows }, (_, r) =>
       Array.from({ length: cols }, (_, c) =>
         `group-2-pics/group-2-people-strength-equipment_${String(r + 1).padStart(2, '0')}_${String(c + 1).padStart(2, '0')}.png`
       )
     ).flat();
-
-    const group1 = [];
 
     function tileUrl(path) {
       return `${base}/${path}`;
