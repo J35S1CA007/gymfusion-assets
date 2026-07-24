@@ -7,7 +7,8 @@
     window.__gymfusionLoaderInstalled = true;
 
     const CONFIG = {
-      assetBaseUrl: "https://raw.githubusercontent.com/J35S1CA007/gymfusion-assets/main",
+      assetBaseUrl:
+        "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@5a3f179",
       supportedFormats: ["avif", "webp", "png"],
       formatProbeTimeoutMs: 700,
       mobileBreakpointPx: 640,
