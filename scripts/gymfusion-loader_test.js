@@ -7,14 +7,17 @@
     window.__gymfusionLoaderInstalled = true;
 
     const CONFIG = {
-      assetBaseUrl:
-        "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@5a3f179",
+      assetBaseUrl: (() => {
+        const src = document.currentScript?.src || "";
+        return src ? src.replace(/\/scripts\/[^/]+$/, "") : "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@5a3f179";
+      })(),
       supportedFormats: ["avif", "webp", "png"],
       formatProbeTimeoutMs: 700,
       mobileBreakpointPx: 640,
       desktopBackgroundBase:
         "loaders/desktop loader images/current/gymfusion-neon-dust-loader-desktop-img",
-      mobileBackgroundBase: "loaders/mobile loader images/gf-mobile-loader-img",
+      mobileBackgroundBase:
+        "loaders/mobile loader images/current/gf-mobile-loader-img-upscayled",
       titleLogoBase: "loaders/logos/vibrant-title-and-slongan",
       emblemLogoBase: "loaders/logos/vibrant_spiral_transparent",
       desktopBackgroundPosition: "center",
