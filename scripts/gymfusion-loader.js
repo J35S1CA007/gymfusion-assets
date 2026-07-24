@@ -80,19 +80,24 @@ html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
 #gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:var(--gf-black);opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
 #gfLoader.gf-loader-standard-page{background:var(--gf-black)}
 #gfLoader.gf-loader-embed-page{background:var(--gf-black)}
-#gfLoader .gf-backdrop{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:1;background:
-radial-gradient(circle at 18% 18%,rgba(255,255,255,0.20) 0 1px,transparent 1.6px),
-radial-gradient(circle at 82% 28%,rgba(255,255,255,0.16) 0 1px,transparent 1.6px),
-radial-gradient(circle at 24% 74%,rgba(255,255,255,0.12) 0 1px,transparent 1.6px),
-radial-gradient(circle at 66% 60%,rgba(162,48,255,0.18),transparent 22%),
-radial-gradient(circle at 34% 42%,rgba(0,178,255,0.10),transparent 30%),
-linear-gradient(180deg,rgba(3,2,7,0.98) 0%,rgba(4,3,10,0.94) 48%,rgba(3,2,7,0.98) 100%);
-background-size:2px 2px,2px 2px,2px 2px,auto,auto,cover;background-repeat:repeat,repeat,repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,50% 50%,50% 50%,center;background-blend-mode:screen,screen,screen,screen,screen,normal;filter:saturate(1.08) contrast(1.06)}
-#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 520ms ease;background:
+#gfLoader .gf-backdrop{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:1;background:
+radial-gradient(circle at 18% 18%,rgba(255,255,255,0.98) 0 1px,transparent 1.2px),
+radial-gradient(circle at 82% 28%,rgba(255,255,255,0.70) 0 1px,transparent 1.2px),
+radial-gradient(circle at 24% 74%,rgba(255,255,255,0.56) 0 1px,transparent 1.2px),
+radial-gradient(circle at 64% 18%,rgba(255,255,255,0.62) 0 1px,transparent 1.2px),
+radial-gradient(circle at 14% 58%,rgba(255,255,255,0.44) 0 1px,transparent 1.2px),
+radial-gradient(circle at 88% 14%,rgba(255,255,255,0.36) 0 1px,transparent 1.2px),
+radial-gradient(circle at 48% 82%,rgba(255,255,255,0.30) 0 1px,transparent 1.2px),
+radial-gradient(circle at 30% 36%,rgba(255,255,255,0.22) 0 1px,transparent 1.2px),
+radial-gradient(circle at 70% 66%,rgba(255,255,255,0.18) 0 1px,transparent 1.2px),
+radial-gradient(circle at 66% 60%,rgba(162,48,255,0.42),transparent 22%),
+radial-gradient(circle at 34% 42%,rgba(255,48,48,0.28),transparent 30%),
+linear-gradient(180deg,rgba(3,2,7,0.60) 0%,rgba(4,3,10,0.64) 48%,rgba(3,2,7,0.82) 100%);
+background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240px 240px,280px 280px,340px 340px,400px 400px,auto,auto,cover;background-repeat:repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,64% 18%,14% 58%,88% 14%,48% 82%,30% 36%,70% 66%,50% 50%,50% 50%,center;background-blend-mode:screen,screen,screen,screen,screen,screen,screen,screen,screen,screen,screen,normal;filter:saturate(1.08) contrast(1.06)}
+#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 520ms ease;background:
 linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),
-image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png")) center/cover no-repeat;mix-blend-mode:screen;filter:saturate(1.08) contrast(1.04);opacity:.86}
-#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:1}
-#gfLoader.gf-galaxy-loaded .gf-backdrop{opacity:0}
+image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png")) center/cover no-repeat;mix-blend-mode:screen;filter:saturate(1.08) contrast(1.04)}
+#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86}
 #gfLoader.gf-loader-standard-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s}
 #gfLoader.gf-loader-standard-page .gf-progress{height:7px;opacity:0.82}
 #gfLoader.gf-loader-embed-page .gf-wheel{box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 0 22px rgba(162,48,255,0.42),0 0 42px rgba(237,0,122,0.24)}
@@ -181,10 +186,11 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
       return null;
     };
 
-    const preloadImage = (src) =>
-      new Promise((resolve) => {
+    const preloadImage = (src, resolveOnError = true) =>
+      new Promise((resolve, reject) => {
         const image = new Image();
-        image.onload = image.onerror = () => resolve();
+        image.onload = () => resolve();
+        image.onerror = () => (resolveOnError ? resolve() : reject(new Error(`Failed to preload ${src}`)));
         image.src = src;
       });
 
@@ -249,13 +255,20 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
 
     const preloadSelectedAssets = async () => {
       const format = await resolvePreferredFormat();
-      const assetNames = [
-        CONFIG.desktopBackgroundBase,
-        CONFIG.titleLogoBase,
-        CONFIG.emblemLogoBase,
-      ];
+      const assetNames = [CONFIG.titleLogoBase, CONFIG.emblemLogoBase];
 
       await Promise.all(assetNames.map((baseName) => preloadImage(assetUrl(baseName, format))));
+    };
+
+    const preloadBackgroundImage = async () => {
+      const format = await resolvePreferredFormat();
+      const backgroundUrl = assetUrl(CONFIG.desktopBackgroundBase, format);
+      await Promise.race([
+        preloadImage(backgroundUrl, false),
+        sleep(6000).then(() => {
+          throw new Error("Timed out preloading the GymFusion background image");
+        }),
+      ]);
     };
 
     const ensureLoaderShell = () => {
@@ -574,9 +587,10 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
         document.fonts && document.fonts.ready
           ? Promise.race([document.fonts.ready.catch(() => {}), sleep(1200)])
           : Promise.resolve();
-      void Promise.race([preloadSelectedAssets(), sleep(1800)])
+      void preloadSelectedAssets().catch(() => {});
+      void preloadBackgroundImage()
         .then(() => PAGE_STATE.shell?.classList.add("gf-galaxy-loaded"))
-        .catch(() => PAGE_STATE.shell?.classList.add("gf-galaxy-loaded"));
+        .catch(() => {});
       const minVisiblePromise = sleep(loaderConfig.minVisibleMs);
       const maxVisiblePromise = sleep(loaderConfig.maxVisibleMs);
 
