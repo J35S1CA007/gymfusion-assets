@@ -146,10 +146,12 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
             document.addEventListener("DOMContentLoaded", resolve, { once: true })
           );
 
-    const waitForWindowLoad = () =>
-      document.readyState === "complete"
+    const waitForDomReady = () =>
+      document.readyState === "interactive" || document.readyState === "complete"
         ? Promise.resolve()
-        : new Promise((resolve) => window.addEventListener("load", resolve, { once: true }));
+        : new Promise((resolve) =>
+            window.addEventListener("DOMContentLoaded", resolve, { once: true })
+          );
 
     const hasEmbeds = () => {
       try {
@@ -571,11 +573,13 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
       PAGE_STATE.cursor = isEmbedPage ? createCursorEffect() : { destroy() {} };
       PAGE_STATE.startTime = performance.now();
 
-      const readyPromise = waitForWindowLoad();
+      const readyPromise = waitForDomReady();
       const embedPromise = isEmbedPage ? waitForControlledEmbeds(expectedEmbeds) : Promise.resolve();
       const fontPromise =
-        document.fonts && document.fonts.ready ? document.fonts.ready.catch(() => {}) : Promise.resolve();
-      const preloadPromise = preloadSelectedAssets();
+        document.fonts && document.fonts.ready
+          ? Promise.race([document.fonts.ready.catch(() => {}), sleep(1200)])
+          : Promise.resolve();
+      void preloadSelectedAssets().catch(() => {});
       const minVisiblePromise = sleep(loaderConfig.minVisibleMs);
       const maxVisiblePromise = sleep(loaderConfig.maxVisibleMs);
 
@@ -598,7 +602,7 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
 
       try {
         await Promise.race([
-          Promise.all([readyPromise, fontPromise, preloadPromise, embedPromise, minVisiblePromise]),
+          Promise.all([readyPromise, fontPromise, embedPromise, minVisiblePromise]),
           maxVisiblePromise,
         ]);
       } catch (error) {
