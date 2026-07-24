@@ -80,7 +80,21 @@ html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
 #gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:var(--gf-black);opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
 #gfLoader.gf-loader-standard-page{background:linear-gradient(180deg,rgba(5,4,7,0.08),rgba(5,4,7,0.18)),var(--gf-galaxy) center/cover no-repeat}
 #gfLoader.gf-loader-embed-page{background:radial-gradient(circle at 50% 34%,rgba(162,48,255,0.28),transparent 38%),radial-gradient(circle at 28% 72%,rgba(255,74,28,0.16),transparent 34%),radial-gradient(circle at 78% 70%,rgba(237,0,122,0.16),transparent 34%),linear-gradient(180deg,rgba(5,4,7,0.30),rgba(5,4,7,0.68)),var(--gf-galaxy) center/cover no-repeat}
-#gfLoader .gf-backdrop{position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") center/cover no-repeat;background-image:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png"))}
+#gfLoader .gf-backdrop{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:1;background:
+radial-gradient(circle at 18% 18%,rgba(255,255,255,0.20) 0 1px,transparent 1.6px),
+radial-gradient(circle at 82% 28%,rgba(255,255,255,0.16) 0 1px,transparent 1.6px),
+radial-gradient(circle at 24% 74%,rgba(255,255,255,0.12) 0 1px,transparent 1.6px),
+radial-gradient(circle at 66% 60%,rgba(162,48,255,0.18),transparent 22%),
+radial-gradient(circle at 34% 42%,rgba(0,178,255,0.10),transparent 30%),
+linear-gradient(180deg,rgba(3,2,7,0.98) 0%,rgba(4,3,10,0.94) 48%,rgba(3,2,7,0.98) 100%),
+url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") center/cover no-repeat;background-image:
+radial-gradient(circle at 18% 18%,rgba(255,255,255,0.20) 0 1px,transparent 1.6px),
+radial-gradient(circle at 82% 28%,rgba(255,255,255,0.16) 0 1px,transparent 1.6px),
+radial-gradient(circle at 24% 74%,rgba(255,255,255,0.12) 0 1px,transparent 1.6px),
+radial-gradient(circle at 66% 60%,rgba(162,48,255,0.18),transparent 22%),
+radial-gradient(circle at 34% 42%,rgba(0,178,255,0.10),transparent 30%),
+linear-gradient(180deg,rgba(3,2,7,0.98) 0%,rgba(4,3,10,0.94) 48%,rgba(3,2,7,0.98) 100%),
+image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png"));background-size:2px 2px,2px 2px,2px 2px,auto,auto,cover,cover;background-repeat:repeat,repeat,repeat,no-repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,50% 50%,50% 50%,center,center;background-blend-mode:screen,screen,screen,screen,screen,normal,normal;filter:saturate(1.08) contrast(1.06)}
 #gfLoader.gf-loader-standard-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s}
 #gfLoader.gf-loader-standard-page .gf-progress{height:7px;opacity:0.82}
 #gfLoader.gf-loader-embed-page .gf-wheel{box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 0 22px rgba(162,48,255,0.42),0 0 42px rgba(237,0,122,0.24)}
