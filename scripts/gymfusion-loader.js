@@ -88,13 +88,6 @@ radial-gradient(circle at 66% 60%,rgba(162,48,255,0.18),transparent 22%),
 radial-gradient(circle at 34% 42%,rgba(0,178,255,0.10),transparent 30%),
 linear-gradient(180deg,rgba(3,2,7,0.98) 0%,rgba(4,3,10,0.94) 48%,rgba(3,2,7,0.98) 100%);
 background-size:2px 2px,2px 2px,2px 2px,auto,auto,cover;background-repeat:repeat,repeat,repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,50% 50%,50% 50%,center;background-blend-mode:screen,screen,screen,screen,screen,normal;filter:saturate(1.08) contrast(1.06)}
-#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:1;background-image:
-radial-gradient(circle at 18% 18%,rgba(255,255,255,0.20) 0 1px,transparent 1.6px),
-radial-gradient(circle at 82% 28%,rgba(255,255,255,0.16) 0 1px,transparent 1.6px),
-radial-gradient(circle at 24% 74%,rgba(255,255,255,0.12) 0 1px,transparent 1.6px),
-radial-gradient(circle at 66% 60%,rgba(162,48,255,0.18),transparent 22%),
-radial-gradient(circle at 34% 42%,rgba(0,178,255,0.10),transparent 30%),
-image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png"));background-size:2px 2px,2px 2px,2px 2px,auto,auto,cover,cover;background-repeat:repeat,repeat,repeat,no-repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,50% 50%,50% 50%,center,center;background-blend-mode:screen,screen,screen,screen,screen,normal,normal;filter:saturate(1.08) contrast(1.06)}
 #gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:1;background:
 linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),
 image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png")) center/cover no-repeat;mix-blend-mode:screen;filter:saturate(1.08) contrast(1.04);opacity:.86}
