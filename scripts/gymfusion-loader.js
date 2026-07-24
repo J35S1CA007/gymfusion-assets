@@ -49,6 +49,11 @@
       embedPagePrefixes: ["/home/", "/eoi/", "/rfm-screening-hub/", "/health-screening/"],
     };
 
+    const BACKGROUND_FADE_MS = 520;
+    const BACKGROUND_FADE_SETTLE_MS = BACKGROUND_FADE_MS + 50;
+    const BACKGROUND_VISUAL_BUDGET_MS = 1200;
+    const BACKGROUND_PRELOAD_TIMEOUT_MS = 6000;
+
     const AVIF_PROBE =
       "data:image/avif;base64,AAAAHGZ0eXBhdmlmAAAAAG1pZjFhdmlmbWlhZgAAAXBtZXRhAAAAAAAAACFoZGxyAAAAAAAAAABwaWN0AAAAAAAAAAAAAAAAAAAAAA5waXRtAAAAAAABAAAANGlsb2MAAAAAREAAAgABAAAAAAGUAAEAAAAAAAAAGgACAAAAAAGuAAEAAAAAAAAAFAAAADhpaW5mAAAAAAACAAAAFWluZm8CAAAAAAEAAGF2MDEAAAAAFWluZm8CAAAAAAIAAGF2MDEAAAAAr2lwcnAAAACKaXBjbwAAAAxhdjFDgQAMAAAAABRpc3BlAAAAAAAAAAEAAAABAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAcAAAAAA5waXhpAAAAAAEIAAAAOGF1eEMAAAAAdXJuOm1wZWc6bXBlZ0I6Y2ljcDpzeXN0ZW1zOmF1eGlsaWFyeTphbHBoYQAAAAAdaXBtYQAAAAAAAAACAAEDgQIDAAIEhAIFhgAAABppcmVmAAAAAAAAAA5hdXhsAAIAAQABAAAANm1kYXQSAAoIGAAGCAhoNCAyDBgACiiihAAAsBNL2BIACgQYAAYVMgoYACihAAIhHctg";
     const WEBP_PROBE =
@@ -70,12 +75,27 @@
     const assetUrl = (baseName, format) =>
       encodeURI(`${CONFIG.assetBaseUrl}/${baseName}.${format}`);
 
+    const buildImageSet = (baseName) =>
+      `image-set(url("${assetUrl(baseName, "avif")}") type("image/avif"),url("${assetUrl(baseName, "webp")}") type("image/webp"),url("${assetUrl(baseName, "png")}") type("image/png"))`;
+
+    const getBackgroundSelection = () =>
+      window.matchMedia(`(max-width: ${CONFIG.mobileBreakpointPx}px)`).matches
+        ? {
+            baseName: CONFIG.mobileBackgroundBase,
+            position: CONFIG.mobileBackgroundPosition,
+          }
+        : {
+            baseName: CONFIG.desktopBackgroundBase,
+            position: CONFIG.desktopBackgroundPosition,
+          };
+
     const STYLE_ID = "gf-loader-style";
 
     const buildLoaderStyle = () => `
 @font-face{font-family:"GymFusionTitle";src:url("${assetUrl("Inzomniac", "ttf")}") format("truetype");font-display:swap}
 @font-face{font-family:"GamuthDisplay";src:url("${assetUrl("Gamuth Font Family/GamuthSansWeb-Bold.display", "woff2")}") format("woff2");font-display:swap}
-:root{--gf-black:#050407;--gf-purple:#a230ff;--gf-purple-soft:#c9a6ff;--gf-white:#fff7ee;--gf-galaxy:image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png"))}
+:root{--gf-black:#050407;--gf-purple:#a230ff;--gf-purple-soft:#c9a6ff;--gf-white:#fff7ee;--gf-galaxy:${buildImageSet(CONFIG.desktopBackgroundBase)};--gf-galaxy-position:${CONFIG.desktopBackgroundPosition}}
+@media (max-width:${CONFIG.mobileBreakpointPx}px){:root{--gf-galaxy:${buildImageSet(CONFIG.mobileBackgroundBase)};--gf-galaxy-position:${CONFIG.mobileBackgroundPosition}}}
 html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
 #gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:var(--gf-black);opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
 #gfLoader.gf-loader-standard-page{background:var(--gf-black)}
@@ -94,9 +114,7 @@ radial-gradient(circle at 66% 60%,rgba(162,48,255,0.42),transparent 22%),
 radial-gradient(circle at 34% 42%,rgba(255,48,48,0.28),transparent 30%),
 linear-gradient(180deg,rgba(3,2,7,0.60) 0%,rgba(4,3,10,0.64) 48%,rgba(3,2,7,0.82) 100%);
 background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240px 240px,280px 280px,340px 340px,400px 400px,auto,auto,cover;background-repeat:repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,64% 18%,14% 58%,88% 14%,48% 82%,30% 36%,70% 66%,50% 50%,50% 50%,center;background-blend-mode:screen,screen,screen,screen,screen,screen,screen,screen,screen,screen,screen,normal;filter:saturate(1.08) contrast(1.06)}
-#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 520ms ease;background:
-linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),
-image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png")) center/cover no-repeat;mix-blend-mode:screen;filter:saturate(1.08) contrast(1.04)}
+#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity ${BACKGROUND_FADE_MS}ms ease;background:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),var(--gf-galaxy);background-position:center,var(--gf-galaxy-position);background-size:auto,cover;background-repeat:no-repeat,no-repeat;mix-blend-mode:screen;filter:saturate(1.08) contrast(1.04)}
 #gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86}
 #gfLoader.gf-loader-standard-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s}
 #gfLoader.gf-loader-standard-page .gf-progress{height:7px;opacity:0.82}
@@ -262,14 +280,49 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
 
     const preloadBackgroundImage = async () => {
       const format = await resolvePreferredFormat();
-      const backgroundUrl = assetUrl(CONFIG.desktopBackgroundBase, format);
+      const { baseName } = getBackgroundSelection();
+      const backgroundUrl = assetUrl(baseName, format);
       await Promise.race([
         preloadImage(backgroundUrl, false),
-        sleep(6000).then(() => {
+        sleep(BACKGROUND_PRELOAD_TIMEOUT_MS).then(() => {
           throw new Error("Timed out preloading the GymFusion background image");
         }),
       ]);
     };
+
+    const revealBackgroundImage = () =>
+      new Promise((resolve) => {
+        const shell = PAGE_STATE.shell;
+
+        if (!shell || PAGE_STATE.finished || !shell.isConnected) {
+          resolve(false);
+          return;
+        }
+
+        shell.classList.remove("gf-galaxy-loaded");
+
+        requestAnimationFrame(() => {
+          if (!shell.isConnected || PAGE_STATE.finished) {
+            resolve(false);
+            return;
+          }
+
+          void shell.offsetWidth;
+
+          requestAnimationFrame(() => {
+            if (!shell.isConnected || PAGE_STATE.finished) {
+              resolve(false);
+              return;
+            }
+
+            shell.classList.add("gf-galaxy-loaded");
+
+            window.setTimeout(() => {
+              resolve(true);
+            }, BACKGROUND_FADE_SETTLE_MS);
+          });
+        });
+      });
 
     const ensureLoaderShell = () => {
       let shell = document.getElementById("gfLoader");
@@ -588,9 +641,13 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
           ? Promise.race([document.fonts.ready.catch(() => {}), sleep(1200)])
           : Promise.resolve();
       void preloadSelectedAssets().catch(() => {});
-      void preloadBackgroundImage()
-        .then(() => PAGE_STATE.shell?.classList.add("gf-galaxy-loaded"))
-        .catch(() => {});
+      const backgroundVisualPromise = preloadBackgroundImage()
+        .then(() => revealBackgroundImage())
+        .catch(() => false);
+      const boundedBackgroundVisualPromise = Promise.race([
+        backgroundVisualPromise,
+        sleep(BACKGROUND_VISUAL_BUDGET_MS).then(() => false),
+      ]);
       const minVisiblePromise = sleep(loaderConfig.minVisibleMs);
       const maxVisiblePromise = sleep(loaderConfig.maxVisibleMs);
 
@@ -613,7 +670,13 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
 
       try {
         await Promise.race([
-          Promise.all([readyPromise, fontPromise, embedPromise, minVisiblePromise]),
+          Promise.all([
+            readyPromise,
+            fontPromise,
+            embedPromise,
+            minVisiblePromise,
+            boundedBackgroundVisualPromise,
+          ]),
           maxVisiblePromise,
         ]);
       } catch (error) {
