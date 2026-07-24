@@ -86,15 +86,18 @@ radial-gradient(circle at 82% 28%,rgba(255,255,255,0.16) 0 1px,transparent 1.6px
 radial-gradient(circle at 24% 74%,rgba(255,255,255,0.12) 0 1px,transparent 1.6px),
 radial-gradient(circle at 66% 60%,rgba(162,48,255,0.18),transparent 22%),
 radial-gradient(circle at 34% 42%,rgba(0,178,255,0.10),transparent 30%),
-linear-gradient(180deg,rgba(3,2,7,0.98) 0%,rgba(4,3,10,0.94) 48%,rgba(3,2,7,0.98) 100%),
-url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") center/cover no-repeat;background-image:
+linear-gradient(180deg,rgba(3,2,7,0.98) 0%,rgba(4,3,10,0.94) 48%,rgba(3,2,7,0.98) 100%);
+background-size:2px 2px,2px 2px,2px 2px,auto,auto,cover;background-repeat:repeat,repeat,repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,50% 50%,50% 50%,center;background-blend-mode:screen,screen,screen,screen,screen,normal;filter:saturate(1.08) contrast(1.06)}
+#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:1;background-image:
 radial-gradient(circle at 18% 18%,rgba(255,255,255,0.20) 0 1px,transparent 1.6px),
 radial-gradient(circle at 82% 28%,rgba(255,255,255,0.16) 0 1px,transparent 1.6px),
 radial-gradient(circle at 24% 74%,rgba(255,255,255,0.12) 0 1px,transparent 1.6px),
 radial-gradient(circle at 66% 60%,rgba(162,48,255,0.18),transparent 22%),
 radial-gradient(circle at 34% 42%,rgba(0,178,255,0.10),transparent 30%),
-linear-gradient(180deg,rgba(3,2,7,0.98) 0%,rgba(4,3,10,0.94) 48%,rgba(3,2,7,0.98) 100%),
 image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png"));background-size:2px 2px,2px 2px,2px 2px,auto,auto,cover,cover;background-repeat:repeat,repeat,repeat,no-repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,50% 50%,50% 50%,center,center;background-blend-mode:screen,screen,screen,screen,screen,normal,normal;filter:saturate(1.08) contrast(1.06)}
+#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:1;background:
+linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),
+image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png")) center/cover no-repeat;mix-blend-mode:normal}
 #gfLoader.gf-loader-standard-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s}
 #gfLoader.gf-loader-standard-page .gf-progress{height:7px;opacity:0.82}
 #gfLoader.gf-loader-embed-page .gf-wheel{box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 0 22px rgba(162,48,255,0.42),0 0 42px rgba(237,0,122,0.24)}
@@ -270,6 +273,7 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
         shell.setAttribute("aria-label", "Loading GYMFUSION");
         shell.innerHTML = `
           <div class="gf-backdrop" aria-hidden="true"></div>
+          <div class="gf-backdrop-image" aria-hidden="true"></div>
           <section class="gf-brand" aria-label="GYMFUSION">
             <div class="gf-emblem" aria-hidden="true"></div>
             <picture class="gf-logo">
