@@ -274,29 +274,39 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
       ]);
     };
 
-    const revealBackgroundImage = () => {
-      const shell = PAGE_STATE.shell;
+    const revealBackgroundImage = () =>
+      new Promise((resolve) => {
+        const shell = PAGE_STATE.shell;
 
-      if (!shell || PAGE_STATE.finished) {
-        return;
-      }
+        if (!shell || PAGE_STATE.finished || !shell.isConnected) {
+          resolve(false);
+          return;
+        }
 
-      // Ensure the initial opacity: 0 state is active.
-      shell.classList.remove("gf-galaxy-loaded");
+        shell.classList.remove("gf-galaxy-loaded");
 
-      // First frame: browser registers the hidden image layer.
-      requestAnimationFrame(() => {
-        // Force style/layout calculation so the browser commits opacity: 0.
-        void shell.offsetWidth;
-
-        // Second frame: trigger the opacity transition.
         requestAnimationFrame(() => {
-          if (!PAGE_STATE.finished && shell.isConnected) {
-            shell.classList.add("gf-galaxy-loaded");
+          if (!shell.isConnected || PAGE_STATE.finished) {
+            resolve(false);
+            return;
           }
+
+          void shell.offsetWidth;
+
+          requestAnimationFrame(() => {
+            if (!shell.isConnected || PAGE_STATE.finished) {
+              resolve(false);
+              return;
+            }
+
+            shell.classList.add("gf-galaxy-loaded");
+
+            window.setTimeout(() => {
+              resolve(true);
+            }, 750);
+          });
         });
       });
-    };
 
     const ensureLoaderShell = () => {
       let shell = document.getElementById("gfLoader");
@@ -615,14 +625,16 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
           ? Promise.race([document.fonts.ready.catch(() => {}), sleep(1200)])
           : Promise.resolve();
       void preloadSelectedAssets().catch(() => {});
-      const backgroundReadyPromise = preloadBackgroundImage();
-      backgroundReadyPromise
+      const backgroundVisualPromise = preloadBackgroundImage()
         .then(async () => {
+          // Test-only delay so the CSS fallback is clearly visible.
           await sleep(1000);
-          revealBackgroundImage();
+
+          return revealBackgroundImage();
         })
         .catch(() => {
-          // Keep fallback visible.
+          // Keep the CSS fallback visible when the image fails.
+          return false;
         });
       const minVisiblePromise = sleep(loaderConfig.minVisibleMs);
       const maxVisiblePromise = sleep(loaderConfig.maxVisibleMs);
@@ -646,7 +658,13 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
 
       try {
         await Promise.race([
-          Promise.all([readyPromise, fontPromise, embedPromise, minVisiblePromise]),
+          Promise.all([
+            readyPromise,
+            fontPromise,
+            embedPromise,
+            minVisiblePromise,
+            backgroundVisualPromise,
+          ]),
           maxVisiblePromise,
         ]);
       } catch (error) {
