@@ -49,7 +49,7 @@
       embedPagePrefixes: ["/home/", "/eoi/", "/rfm-screening-hub/", "/health-screening/"],
     };
 
-    const BACKGROUND_FADE_MS = 520;
+    const BACKGROUND_FADE_MS = 620;
     const BACKGROUND_FADE_SETTLE_MS = BACKGROUND_FADE_MS + 50;
     const BACKGROUND_VISUAL_BUDGET_MS = 1200;
     const BACKGROUND_PRELOAD_TIMEOUT_MS = 6000;
@@ -114,8 +114,8 @@ radial-gradient(circle at 66% 60%,rgba(162,48,255,0.42),transparent 22%),
 radial-gradient(circle at 34% 42%,rgba(255,48,48,0.28),transparent 30%),
 linear-gradient(180deg,rgba(3,2,7,0.60) 0%,rgba(4,3,10,0.64) 48%,rgba(3,2,7,0.82) 100%);
 background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240px 240px,280px 280px,340px 340px,400px 400px,auto,auto,cover;background-repeat:repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,no-repeat,no-repeat,no-repeat;background-position:18% 18%,82% 28%,24% 74%,64% 18%,14% 58%,88% 14%,48% 82%,30% 36%,70% 66%,50% 50%,50% 50%,center;background-blend-mode:screen,screen,screen,screen,screen,screen,screen,screen,screen,screen,screen,normal;filter:saturate(1.08) contrast(1.06)}
-#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity ${BACKGROUND_FADE_MS}ms ease;background:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),var(--gf-galaxy);background-position:center,var(--gf-galaxy-position);background-size:auto,cover;background-repeat:no-repeat,no-repeat;mix-blend-mode:screen;filter:saturate(1.08) contrast(1.04)}
-#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86}
+#gfLoader .gf-backdrop-image{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transform:scale(1.02);transform-origin:center;transition:opacity ${BACKGROUND_FADE_MS}ms cubic-bezier(.22,1,.36,1),transform ${BACKGROUND_FADE_MS}ms cubic-bezier(.22,1,.36,1);background:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),var(--gf-galaxy);background-position:center,var(--gf-galaxy-position);background-size:auto,cover;background-repeat:no-repeat,no-repeat;mix-blend-mode:screen;filter:saturate(1.08) contrast(1.04)}
+#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86;transform:scale(1)}
 #gfLoader.gf-loader-standard-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s}
 #gfLoader.gf-loader-standard-page .gf-progress{height:7px;opacity:0.82}
 #gfLoader.gf-loader-embed-page .gf-wheel{box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 0 22px rgba(162,48,255,0.42),0 0 42px rgba(237,0,122,0.24)}
@@ -145,6 +145,11 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 @keyframes gfSpin{to{transform:rotate(360deg)}}
 @keyframes gfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media (max-width:640px){#gfLoader{grid-template-rows:minmax(150px,30vh) 1fr auto}.gf-brand{width:min(82vw,330px)}.gf-logo{width:min(68vw,270px)}.gf-wheel{width:68px;height:68px}.gf-loading{max-width:82vw;font-size:17px;letter-spacing:0.07em}.gf-loading-word{margin-left:0.18em}.gf-center{transform:translateY(-6vh)}}
+
+@media (prefers-reduced-motion: reduce){
+#gfLoader .gf-backdrop-image{transform:none;transition:opacity 180ms ease}
+#gfLoader.gf-galaxy-loaded .gf-backdrop-image{transform:none}
+}
 `;
 
     const ensureStyleTag = () => {
