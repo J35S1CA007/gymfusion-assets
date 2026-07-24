@@ -11,8 +11,11 @@
       supportedFormats: ["avif", "webp", "png"],
       formatProbeTimeoutMs: 700,
       mobileBreakpointPx: 640,
-      desktopBackgroundBase: "galaxy-loading-screen-gymfusion",
-      mobileBackgroundBase: "gf-mobile-loader-img",
+      desktopBackgroundBase:
+        "loaders/desktop loader images/current/gymfusion-neon-dust-loader-desktop-img",
+      mobileBackgroundBase: "loaders/mobile loader images/gf-mobile-loader-img",
+      titleLogoBase: "loaders/logos/vibrant-title-and-slongan",
+      emblemLogoBase: "loaders/logos/vibrant_spiral_transparent",
       desktopBackgroundPosition: "center",
       mobileBackgroundPosition: "center",
     };
@@ -64,16 +67,16 @@
     };
 
     const assetUrl = (baseName, format) =>
-      `${CONFIG.assetBaseUrl}/${baseName}.${format}`;
+      encodeURI(`${CONFIG.assetBaseUrl}/${baseName}.${format}`);
 
     const STYLE_ID = "gf-loader-style";
 
     const buildLoaderStyle = () => `
 @font-face{font-family:"GymFusionTitle";src:url("${assetUrl("Inzomniac", "ttf")}") format("truetype");font-display:swap}
 @font-face{font-family:"GamuthDisplay";src:url("${assetUrl("Gamuth Font Family/GamuthSansWeb-Bold.display", "woff2")}") format("woff2");font-display:swap}
-:root{--gf-black:#050407;--gf-purple:#a230ff;--gf-purple-soft:#c9a6ff;--gf-white:#fff7ee;--gf-galaxy:image-set(url("${assetUrl("galaxy-loading-screen-gymfusion", "avif")}") type("image/avif"),url("${assetUrl("galaxy-loading-screen-gymfusion", "webp")}") type("image/webp"),url("${assetUrl("galaxy-loading-screen-gymfusion", "png")}") type("image/png"))}
+:root{--gf-black:#050407;--gf-purple:#a230ff;--gf-purple-soft:#c9a6ff;--gf-white:#fff7ee;--gf-galaxy:image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png"))}
 html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
-#gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),url("${assetUrl("galaxy-loading-screen-gymfusion", "png")}") center/cover no-repeat;opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
+#gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") center/cover no-repeat;opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
 #gfLoader.gf-loader-standard-page{background:linear-gradient(180deg,rgba(5,4,7,0.08),rgba(5,4,7,0.18)),var(--gf-galaxy) center/cover no-repeat}
 #gfLoader.gf-loader-embed-page{background:radial-gradient(circle at 50% 34%,rgba(162,48,255,0.28),transparent 38%),radial-gradient(circle at 28% 72%,rgba(255,74,28,0.16),transparent 34%),radial-gradient(circle at 78% 70%,rgba(237,0,122,0.16),transparent 34%),linear-gradient(180deg,rgba(5,4,7,0.30),rgba(5,4,7,0.68)),var(--gf-galaxy) center/cover no-repeat}
 #gfLoader.gf-loader-standard-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s}
@@ -88,7 +91,7 @@ html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
 #gfLoader.gf-is-hidden::after{transform:translateX(0)}
 #gfLoader.gf-is-hidden .gf-brand,#gfLoader.gf-is-hidden .gf-center,#gfLoader.gf-is-hidden .gf-bottom{opacity:0;transform:scale(0.96);transition:opacity 360ms ease,transform 420ms ease}
 .gf-brand{position:relative;align-self:end;justify-self:center;width:min(78vw,410px);padding-top:28px;text-align:center}
-.gf-emblem{width:clamp(76px,12vw,112px);height:clamp(76px,12vw,112px);margin:48px auto -38px;position:relative;z-index:2;background:image-set(url("${assetUrl("vibrant_spiral_transparent", "avif")}") type("image/avif"),url("${assetUrl("vibrant_spiral_transparent", "webp")}") type("image/webp"),url("${assetUrl("vibrant_spiral_transparent", "png")}") type("image/png")) center / contain no-repeat;filter:drop-shadow(0 0 18px rgba(143,57,255,0.42)) drop-shadow(0 10px 24px rgba(0,0,0,0.48));animation:gfFloat 3.4s ease-in-out infinite}
+.gf-emblem{width:clamp(76px,12vw,112px);height:clamp(76px,12vw,112px);margin:48px auto -38px;position:relative;z-index:2;background:image-set(url("${assetUrl(CONFIG.emblemLogoBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.emblemLogoBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.emblemLogoBase, "png")}") type("image/png")) center / contain no-repeat;filter:drop-shadow(0 0 18px rgba(143,57,255,0.42)) drop-shadow(0 10px 24px rgba(0,0,0,0.48));animation:gfFloat 3.4s ease-in-out infinite}
 .gf-logo{display:block;width:min(62vw,310px);margin:0 auto;position:relative;z-index:1;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.5))}
 .gf-logo img{display:block;width:100%;height:auto}
 .gf-center{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;padding:0 20px 0;transform:translateY(-9vh)}
@@ -231,9 +234,9 @@ html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
     const preloadSelectedAssets = async () => {
       const format = await resolvePreferredFormat();
       const assetNames = [
-        "galaxy-loading-screen-gymfusion",
-        "vibrant-title-and-slongan",
-        "vibrant_spiral_transparent",
+        CONFIG.desktopBackgroundBase,
+        CONFIG.titleLogoBase,
+        CONFIG.emblemLogoBase,
       ];
 
       await Promise.all(assetNames.map((baseName) => preloadImage(assetUrl(baseName, format))));
@@ -253,9 +256,9 @@ html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
           <section class="gf-brand" aria-label="GYMFUSION">
             <div class="gf-emblem" aria-hidden="true"></div>
             <picture class="gf-logo">
-              <source srcset="${assetUrl("vibrant-title-and-slongan", "avif")}" type="image/avif">
-              <source srcset="${assetUrl("vibrant-title-and-slongan", "webp")}" type="image/webp">
-              <img src="${assetUrl("vibrant-title-and-slongan", "png")}" alt="GYMFUSION">
+              <source srcset="${assetUrl(CONFIG.titleLogoBase, "avif")}" type="image/avif">
+              <source srcset="${assetUrl(CONFIG.titleLogoBase, "webp")}" type="image/webp">
+              <img src="${assetUrl(CONFIG.titleLogoBase, "png")}" alt="GYMFUSION">
             </picture>
           </section>
           <section class="gf-center">
