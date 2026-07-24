@@ -77,9 +77,10 @@
 @font-face{font-family:"GamuthDisplay";src:url("${assetUrl("Gamuth Font Family/GamuthSansWeb-Bold.display", "woff2")}") format("woff2");font-display:swap}
 :root{--gf-black:#050407;--gf-purple:#a230ff;--gf-purple-soft:#c9a6ff;--gf-white:#fff7ee;--gf-galaxy:image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png"))}
 html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
-#gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") center/cover no-repeat;opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
+#gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:var(--gf-black);opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
 #gfLoader.gf-loader-standard-page{background:linear-gradient(180deg,rgba(5,4,7,0.08),rgba(5,4,7,0.18)),var(--gf-galaxy) center/cover no-repeat}
 #gfLoader.gf-loader-embed-page{background:radial-gradient(circle at 50% 34%,rgba(162,48,255,0.28),transparent 38%),radial-gradient(circle at 28% 72%,rgba(255,74,28,0.16),transparent 34%),radial-gradient(circle at 78% 70%,rgba(237,0,122,0.16),transparent 34%),linear-gradient(180deg,rgba(5,4,7,0.30),rgba(5,4,7,0.68)),var(--gf-galaxy) center/cover no-repeat}
+#gfLoader .gf-backdrop{position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") center/cover no-repeat;background-image:linear-gradient(180deg,rgba(5,4,7,0.10),rgba(5,4,7,0.20)),image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.desktopBackgroundBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.desktopBackgroundBase, "png")}") type("image/png"))}
 #gfLoader.gf-loader-standard-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s}
 #gfLoader.gf-loader-standard-page .gf-progress{height:7px;opacity:0.82}
 #gfLoader.gf-loader-embed-page .gf-wheel{box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 0 22px rgba(162,48,255,0.42),0 0 42px rgba(237,0,122,0.24)}
@@ -91,18 +92,18 @@ html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
 #gfLoader::after{content:"";position:absolute;top:0;bottom:0;right:0;width:50.5%;z-index:4;background:var(--gf-black);transform:translateX(101%);pointer-events:none;transition:transform 780ms cubic-bezier(.76,0,.24,1)}
 #gfLoader.gf-is-hidden::after{transform:translateX(0)}
 #gfLoader.gf-is-hidden .gf-brand,#gfLoader.gf-is-hidden .gf-center,#gfLoader.gf-is-hidden .gf-bottom{opacity:0;transform:scale(0.96);transition:opacity 360ms ease,transform 420ms ease}
-.gf-brand{position:relative;align-self:end;justify-self:center;width:min(78vw,410px);padding-top:28px;text-align:center}
+.gf-brand{position:relative;z-index:1;align-self:end;justify-self:center;width:min(78vw,410px);padding-top:28px;text-align:center}
 .gf-emblem{width:clamp(76px,12vw,112px);height:clamp(76px,12vw,112px);margin:48px auto -38px;position:relative;z-index:2;background:image-set(url("${assetUrl(CONFIG.emblemLogoBase, "avif")}") type("image/avif"),url("${assetUrl(CONFIG.emblemLogoBase, "webp")}") type("image/webp"),url("${assetUrl(CONFIG.emblemLogoBase, "png")}") type("image/png")) center / contain no-repeat;filter:drop-shadow(0 0 18px rgba(143,57,255,0.42)) drop-shadow(0 10px 24px rgba(0,0,0,0.48));animation:gfFloat 3.4s ease-in-out infinite}
 .gf-logo{display:block;width:min(62vw,310px);margin:0 auto;position:relative;z-index:1;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.5))}
 .gf-logo img{display:block;width:100%;height:auto}
-.gf-center{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;padding:0 20px 0;transform:translateY(-9vh)}
+.gf-center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;padding:0 20px 0;transform:translateY(-9vh)}
 .gf-wheel{position:relative;width:76px;height:76px;border-radius:999px;background:transparent;border:4px solid var(--gf-black);border-top-color:var(--gf-purple);border-right-color:var(--gf-purple);box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 0 18px rgba(143,57,255,0.22);animation:gfSpin 2.1s linear infinite}
 .gf-wheel::after{content:none}
 .gf-loading{display:inline-flex;align-items:center;justify-content:center;width:min(90vw,520px);min-height:38px;color:var(--gf-white);font-family:"GamuthDisplay",Georgia,serif;font-size:22px;font-weight:800;letter-spacing:0.1em;line-height:1.35;text-align:center;text-transform:uppercase;text-shadow:0 8px 20px rgba(0,0,0,0.72)}
 .gf-loading-word{display:inline-block;margin-left:0.24em;color:transparent;background:linear-gradient(105deg,#c97cff 0%,#e0b5ff 24%,#f0d8ff 48%,#d99aff 72%,#bd63ff 100%);-webkit-background-clip:text;background-clip:text;text-align:center;text-shadow:0 0 12px rgba(224,181,255,0.36),0 0 24px rgba(162,48,255,0.68),0 5px 16px rgba(0,0,0,0.78);transition:opacity 420ms ease,transform 420ms cubic-bezier(.22,1,.36,1)}
 .gf-loading-word.gf-exit{opacity:0;transform:translateY(18px)}
 .gf-loading-word.gf-enter{opacity:0;transform:translateY(-18px)}
-.gf-bottom{position:relative;padding:0 0 max(18px,env(safe-area-inset-bottom));background:var(--gf-black)}
+.gf-bottom{position:relative;z-index:1;padding:0 0 max(18px,env(safe-area-inset-bottom));background:var(--gf-black)}
 .gf-progress{width:min(calc(100% - 36px),780px);height:10px;margin:0 auto;overflow:hidden;border-radius:0;background:var(--gf-black);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08),0 10px 28px rgba(0,0,0,0.45)}
 .gf-progress-fill{width:4%;height:100%;border-radius:0;background:linear-gradient(90deg,#050407 0%,#2a0f43 16%,#a230ff 58%,#c9a6ff 100%);box-shadow:0 0 18px rgba(143,57,255,0.48);transition:width 180ms cubic-bezier(.22,1,.36,1)}
 .gf-cursor-canvas{position:fixed;inset:0;z-index:2147483647;width:100vw;height:100vh;pointer-events:none;mix-blend-mode:screen;opacity:0.95}
@@ -254,6 +255,7 @@ html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
         shell.setAttribute("aria-live", "polite");
         shell.setAttribute("aria-label", "Loading GYMFUSION");
         shell.innerHTML = `
+          <div class="gf-backdrop" aria-hidden="true"></div>
           <section class="gf-brand" aria-label="GYMFUSION">
             <div class="gf-emblem" aria-hidden="true"></div>
             <picture class="gf-logo">
