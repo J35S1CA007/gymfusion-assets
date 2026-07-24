@@ -22,12 +22,12 @@
 
     const LOADER_RULES = {
       standard: {
-        minVisibleMs: 1100,
+        minVisibleMs: 2400,
         maxVisibleMs: 9000,
         messages: ["POTENTIAL", "STRENGTH", "CONTROL", "CONFIDENCE"],
       },
       embed: {
-        minVisibleMs: 1600,
+        minVisibleMs: 3200,
         maxVisibleMs: 15000,
         embedReadyTimeoutMs: 5200,
         messages: [
