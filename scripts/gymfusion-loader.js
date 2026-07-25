@@ -52,6 +52,12 @@
       embedPagePrefixes: ["/home/", "/eoi/", "/rfm-screening-hub/", "/health-screening/"],
     };
 
+    const READY_PROTOCOL = {
+      type: "GYMFUSION_READY",
+      version: 1,
+      iframeFallbackDelayMs: 800,
+    };
+
     const BACKGROUND_FADE_MS = 620;
     const BACKGROUND_FADE_SETTLE_MS = BACKGROUND_FADE_MS + 50;
     const BACKGROUND_VISUAL_BUDGET_MS = 1200;
@@ -185,6 +191,63 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       } catch {
         return false;
       }
+    };
+
+    const isDevelopmentMode = () => {
+      const host = window.location.hostname;
+      return (
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host === "::1" ||
+        host.endsWith(".local") ||
+        window.location.protocol === "file:"
+      );
+    };
+
+    const logReadyProtocol = (level, message, details) => {
+      if (!isDevelopmentMode()) {
+        return;
+      }
+
+      const logger = console[level] || console.log;
+      logger.call(console, `[GymFusion Loader] ${message}`, details || "");
+    };
+
+    const normalizeEmbedId = (value) => (typeof value === "string" ? value.trim() : "");
+
+    const getIframeEmbedId = (iframe) =>
+      normalizeEmbedId(
+        iframe?.dataset?.gfEmbedId ||
+          iframe?.dataset?.embedId ||
+          iframe?.getAttribute("data-gf-embed-id") ||
+          iframe?.getAttribute("data-embed-id") ||
+          iframe?.id ||
+          iframe?.name ||
+          ""
+      );
+
+    const parseReadyPayload = (rawData) => {
+      let data = rawData;
+
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch {
+          return null;
+        }
+      }
+
+      if (!data || typeof data !== "object") {
+        return null;
+      }
+
+      if (data.type !== READY_PROTOCOL.type || data.version !== READY_PROTOCOL.version) {
+        return null;
+      }
+
+      return {
+        embedId: normalizeEmbedId(data.embedId),
+      };
     };
 
     const getPath = () =>
@@ -506,12 +569,16 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 
       return new Promise((resolve) => {
         const seen = new WeakSet();
+        const seenEmbedIds = new Set();
         let readyCount = 0;
         let finished = false;
+        const fallbackTimers = new Set();
 
         const cleanup = () => {
           window.removeEventListener("message", onMessage);
           window.clearTimeout(timeoutId);
+          fallbackTimers.forEach((timerId) => window.clearTimeout(timerId));
+          fallbackTimers.clear();
         };
 
         const done = () => {
@@ -521,24 +588,59 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
           resolve();
         };
 
-        const markReady = (iframe) => {
-          if (!iframe || seen.has(iframe)) return;
+        const markReady = (iframe, embedId, source) => {
+          if (!iframe || seen.has(iframe)) {
+            return false;
+          }
+
+          const normalizedEmbedId = normalizeEmbedId(embedId || getIframeEmbedId(iframe));
+          if (normalizedEmbedId && seenEmbedIds.has(normalizedEmbedId)) {
+            return false;
+          }
+
           seen.add(iframe);
+          if (normalizedEmbedId) {
+            seenEmbedIds.add(normalizedEmbedId);
+          }
+
           readyCount += 1;
+          logReadyProtocol("info", "READY accepted", {
+            source,
+            readyCount,
+            expectedCount,
+            embedId: normalizedEmbedId || null,
+          });
+
           if (readyCount >= expectedCount) {
             done();
           }
+
+          return true;
         };
 
         const onMessage = (event) => {
-          if (!event.data || event.data.type !== "GYMFUSION_READY") {
+          const payload = parseReadyPayload(event.data);
+          if (!payload) {
             return;
           }
 
           const iframe = iframes.find((node) => node.contentWindow === event.source);
           if (iframe) {
-            markReady(iframe);
+            markReady(iframe, payload.embedId, "message");
+            return;
           }
+
+          if (payload.embedId) {
+            const embeddedIframe = iframes.find((node) => getIframeEmbedId(node) === payload.embedId);
+            if (embeddedIframe) {
+              markReady(embeddedIframe, payload.embedId, "message/embedId");
+              return;
+            }
+          }
+
+          logReadyProtocol("warn", "READY message ignored; no matching iframe was found", {
+            embedId: payload.embedId || null,
+          });
         };
 
         const timeoutId = window.setTimeout(done, timeoutMs);
@@ -548,10 +650,28 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
           iframe.addEventListener(
             "load",
             () => {
-              window.setTimeout(() => markReady(iframe), 800);
+              const loadTimerId = window.setTimeout(() => {
+                fallbackTimers.delete(loadTimerId);
+                markReady(iframe, getIframeEmbedId(iframe), "load");
+              }, READY_PROTOCOL.iframeFallbackDelayMs);
+
+              fallbackTimers.add(loadTimerId);
             },
             { once: true }
           );
+
+          try {
+            if (iframe.contentDocument?.readyState === "complete") {
+              const syncTimerId = window.setTimeout(() => {
+                fallbackTimers.delete(syncTimerId);
+                markReady(iframe, getIframeEmbedId(iframe), "already-complete");
+              }, 0);
+
+              fallbackTimers.add(syncTimerId);
+            }
+          } catch {
+            // Cross-origin or inaccessible iframe. Fall back to the load/timeout path.
+          }
         });
       });
     };
