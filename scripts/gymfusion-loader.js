@@ -153,7 +153,7 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 .gf-cursor-canvas{position:fixed;inset:0;z-index:2147483647;width:100vw;height:100vh;pointer-events:none;mix-blend-mode:screen;opacity:0.95}
 @keyframes gfSpin{to{transform:rotate(360deg)}}
 @keyframes gfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media (max-width:640px){#gfLoader{grid-template-rows:minmax(150px,30vh) 1fr auto}.gf-brand{width:min(82vw,330px)}.gf-logo{width:min(68vw,270px)}.gf-wheel{width:68px;height:68px}.gf-loading{max-width:82vw;font-size:17px;letter-spacing:0.07em}.gf-loading-word{margin-left:0.18em}.gf-center{transform:translateY(-6vh)}}
+@media (max-width:640px){#gfLoader{grid-template-rows:minmax(150px,30vh) 1fr auto}.gf-brand{width:min(82vw,330px)}.gf-emblem{width:clamp(66px,10vw,96px);height:clamp(66px,10vw,96px);margin:42px auto -34px}.gf-logo{width:min(68vw,270px)}.gf-wheel{width:68px;height:68px}.gf-loading{max-width:82vw;font-size:17px;letter-spacing:0.07em}.gf-loading-word{margin-left:0.18em}.gf-center{transform:translateY(-6vh)}}
 
 @media (prefers-reduced-motion: reduce){
 #gfLoader .gf-backdrop-image{transform:none;transition:opacity 180ms ease}
