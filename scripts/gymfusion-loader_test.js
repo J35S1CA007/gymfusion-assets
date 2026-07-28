@@ -9,7 +9,7 @@
     const CONFIG = {
       assetBaseUrl: (() => {
         const src = document.currentScript?.src || "";
-        return src ? src.replace(/\/scripts\/[^/]+$/, "") : "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@35d7bdc";
+        return src ? src.replace(/\/scripts\/[^/]+$/, "") : "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main";
       })(),
       supportedFormats: ["avif", "webp", "png"],
       formatProbeTimeoutMs: 700,
@@ -374,17 +374,7 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
         });
       });
 
-    const ensureLoaderShell = () => {
-      let shell = document.getElementById("gfLoader");
-
-      if (!shell) {
-        shell = document.createElement("div");
-        shell.id = "gfLoader";
-        shell.className = "gf-loader-standard-page";
-        shell.setAttribute("role", "status");
-        shell.setAttribute("aria-live", "polite");
-        shell.setAttribute("aria-label", "Loading GYMFUSION");
-        shell.innerHTML = `
+    const buildLoaderMarkup = () => `
           <div class="gf-backdrop" aria-hidden="true"></div>
           <div class="gf-backdrop-image" aria-hidden="true"></div>
           <section class="gf-brand" aria-label="GYMFUSION">
@@ -408,7 +398,27 @@ image-set(url("${assetUrl(CONFIG.desktopBackgroundBase, "avif")}") type("image/a
             </div>
           </div>
         `;
+
+    const ensureLoaderShell = () => {
+      let shell = document.getElementById("gfLoader");
+
+      if (!shell) {
+        shell = document.createElement("div");
+        shell.id = "gfLoader";
+        shell.className = "gf-loader-standard-page";
+        shell.setAttribute("role", "status");
+        shell.setAttribute("aria-live", "polite");
+        shell.setAttribute("aria-label", "Loading GYMFUSION");
         document.body.prepend(shell);
+      }
+
+      if (
+        !shell.querySelector(".gf-backdrop") ||
+        !shell.querySelector(".gf-backdrop-image") ||
+        !shell.querySelector(".gf-brand") ||
+        !shell.querySelector("#gfProgressFill")
+      ) {
+        shell.innerHTML = buildLoaderMarkup();
       }
 
       PAGE_STATE.shell = shell;
