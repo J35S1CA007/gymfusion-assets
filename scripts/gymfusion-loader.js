@@ -9,7 +9,7 @@
     const CONFIG = {
       assetBaseUrl: (() => {
         const src = document.currentScript?.src || "";
-        return src ? src.replace(/\/scripts\/[^/]+$/, "") : "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@5a3f179";
+        return src ? src.replace(/\/scripts\/[^/]+$/, "") : "https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@35d7bdc";
       })(),
       supportedFormats: ["avif", "webp", "png"],
       formatProbeTimeoutMs: 700,
