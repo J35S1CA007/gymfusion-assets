@@ -49,8 +49,16 @@
         "/rfm-screening-hub": { expectedEmbeds: 2 },
         "/health-screening": { expectedEmbeds: 2 },
       },
-      embedPagePrefixes: ["/home/", "/eoi/", "/rfm-screening-hub/", "/health-screening/"],
+      embedPageRoots: ["/home", "/eoi", "/rfm-screening-hub", "/health-screening"],
     };
+
+    const SHELL_VERSION = "2";
+    const MOBILE_LOGO_ART_HEIGHT_PX = 66.5;
+    const MOBILE_LOGO_ART_OFFSET_PX = 19.97;
+    const MOBILE_FIXED_CONTENT_HEIGHT_PX = 331.5;
+    // Provisional values remain selectable until rendered comparisons are approved.
+    const MOBILE_BRAND_GAP_PX = 12;
+    const MOBILE_PREFERRED_TOP_PX = 85;
 
     const READY_PROTOCOL = {
       type: "GYMFUSION_READY",
@@ -78,6 +86,7 @@
       shell: null,
       progressFill: null,
       loadingText: null,
+      shellVersion: null,
       finished: false,
     };
 
@@ -86,6 +95,72 @@
 
     const buildImageSet = (baseName) =>
       `image-set(url("${assetUrl(baseName, "avif")}") type("image/avif"),url("${assetUrl(baseName, "webp")}") type("image/webp"),url("${assetUrl(baseName, "png")}") type("image/png"))`;
+
+    const isValidViewportMetric = (value) => Number.isFinite(value) && value > 0;
+
+    const measureFrozenViewportMetrics = () => {
+      const probe = document.createElement("div");
+      probe.id = "gfLoaderViewportProbe";
+      probe.setAttribute("aria-hidden", "true");
+      probe.style.cssText =
+        "position:fixed;left:-10000px;top:0;box-sizing:border-box;width:1px;height:100svh;padding-top:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none;contain:strict;";
+
+      document.documentElement.append(probe);
+
+      let measuredSmallHeight = 0;
+      let safeTop = 0;
+      try {
+        measuredSmallHeight = probe.getBoundingClientRect().height;
+        safeTop = Math.max(0, Number.parseFloat(getComputedStyle(probe).paddingTop) || 0);
+      } finally {
+        probe.remove();
+      }
+
+      const fallbackHeights = [
+        window.visualViewport?.height,
+        window.innerHeight,
+        document.documentElement.clientHeight,
+      ].filter(isValidViewportMetric);
+      const compositionHeight = MOBILE_FIXED_CONTENT_HEIGHT_PX + MOBILE_BRAND_GAP_PX;
+      const fallbackHeight = fallbackHeights.length
+        ? Math.min(...fallbackHeights)
+        : compositionHeight + (2 * safeTop);
+      const usesSvh =
+        CSS.supports?.("height", "100svh") && isValidViewportMetric(measuredSmallHeight);
+      const smallHeight = usesSvh ? measuredSmallHeight : fallbackHeight;
+      const entryWidth = document.documentElement.clientWidth || window.innerWidth;
+      const entryHeight = document.documentElement.clientHeight || window.innerHeight;
+      const centeredTop = Math.floor((smallHeight - compositionHeight) / 2);
+      const compositionTop =
+        safeTop > MOBILE_PREFERRED_TOP_PX
+          ? safeTop
+          : Math.max(safeTop, Math.min(centeredTop, MOBILE_PREFERRED_TOP_PX));
+
+      return {
+        smallHeight,
+        smallHeightSource: usesSvh ? "100svh" : "viewport-fallback",
+        safeTop,
+        entryWidth,
+        entryHeight,
+        compositionHeight,
+        compositionTop,
+      };
+    };
+
+    const applyFrozenViewportMetrics = (shell, metrics = measureFrozenViewportMetrics()) => {
+      shell.style.setProperty("--gf-entry-width", `${metrics.entryWidth}px`);
+      shell.style.setProperty("--gf-entry-height", `${metrics.entryHeight}px`);
+      shell.style.setProperty("--gf-small-height", `${metrics.smallHeight}px`);
+      shell.style.setProperty("--gf-safe-top", `${metrics.safeTop}px`);
+      shell.style.setProperty("--gf-brand-gap", `${MOBILE_BRAND_GAP_PX}px`);
+      shell.style.setProperty("--gf-logo-art-height", `${MOBILE_LOGO_ART_HEIGHT_PX}px`);
+      shell.style.setProperty("--gf-logo-art-offset", `${MOBILE_LOGO_ART_OFFSET_PX}px`);
+      shell.style.setProperty("--gf-composition-height", `${metrics.compositionHeight}px`);
+      shell.style.setProperty("--gf-composition-top", `${metrics.compositionTop}px`);
+      shell.dataset.gfFrozenMetrics = "true";
+      shell.dataset.gfSmallHeightSource = metrics.smallHeightSource;
+      return metrics;
+    };
 
     const SCROLL_BLOCK_KEYS = new Set(["Space", "PageDown", "PageUp", "End", "Home", "ArrowDown", "ArrowUp"]);
     let scrollLockState = null;
@@ -216,6 +291,7 @@ html.gf-loading-active,html.gf-loading-active body{overflow:hidden!important;ove
 #gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:var(--gf-black);opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
 #gfLoader.gf-loader-standard-page{background:var(--gf-black)}
 #gfLoader.gf-loader-embed-page{background:var(--gf-black)}
+.gf-composition,.gf-logo-art{display:contents}
 #gfLoader .gf-backdrop{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:1;background:
 radial-gradient(circle at 18% 18%,rgba(255,255,255,0.98) 0 1px,transparent 1.2px),
 radial-gradient(circle at 82% 28%,rgba(255,255,255,0.70) 0 1px,transparent 1.2px),
@@ -259,9 +335,31 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 .gf-cursor-canvas{position:fixed;inset:0;z-index:2147483647;width:100vw;height:100vh;pointer-events:none;mix-blend-mode:screen;opacity:0.95}
 @keyframes gfSpin{to{transform:rotate(360deg)}}
 @keyframes gfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media (max-width:640px){#gfLoader{grid-template-rows:164px 310px 73px;align-content:start}#gfLoader.gf-galaxy-loaded .gf-backdrop{opacity:0}#gfLoader .gf-backdrop-image{background-size:auto,100% auto;background-position:center,center top;transform:none}#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86;transform:none}.gf-brand{width:262px}#gfLoader .gf-emblem{width:64px!important;height:64px!important;margin:48px auto -30px!important}.gf-logo{width:218px}.gf-logo img{width:218px;height:auto}#gfLoader.gf-loader-standard-page .gf-wheel,#gfLoader.gf-loader-embed-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 0 18px rgba(143,57,255,0.22)}#gfLoader.gf-loader-standard-page .gf-progress,#gfLoader.gf-loader-embed-page .gf-progress{width:284px;height:7px;opacity:0.82}#gfLoader.gf-loader-standard-page .gf-progress-fill,#gfLoader.gf-loader-embed-page .gf-progress-fill{background:linear-gradient(90deg,#7000F7 0%,#9B00FF 15%,#C500D6 30%,#ED007A 50%,#FF0045 68%,#FF4A1C 82%,#FF7A00 92%,#FFA000 100%);box-shadow:0 0 18px rgba(162,48,255,0.58),0 0 28px rgba(255,74,28,0.34)}#gfLoader.gf-loader-standard-page .gf-loading,#gfLoader.gf-loader-embed-page .gf-loading{width:262px;max-width:none;text-shadow:0 8px 20px rgba(0,0,0,0.72)}.gf-wheel{width:68px;height:68px}.gf-loading{font-size:17px;letter-spacing:0.07em}.gf-loading-word{margin-left:0.18em}.gf-center{align-self:start;justify-content:flex-start;padding-top:84px;transform:none}}@media (prefers-reduced-motion: reduce){
+@media (max-width:640px){
+#gfLoader{display:block;min-height:100dvh}
+#gfLoader .gf-backdrop,#gfLoader .gf-backdrop-image{top:0;right:auto;bottom:auto;left:50%;width:var(--gf-entry-width);height:var(--gf-entry-height);transform:translateX(-50%);transform-origin:center top}
+#gfLoader.gf-galaxy-loaded .gf-backdrop{opacity:0}
+#gfLoader .gf-backdrop-image{background-size:auto,100% auto;background-position:center,center top;transition:opacity ${BACKGROUND_FADE_MS}ms cubic-bezier(.22,1,.36,1)}
+#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86;transform:translateX(-50%)}
+#gfLoader .gf-composition{position:absolute;top:var(--gf-composition-top);left:50%;z-index:2;display:flex;width:284px;height:var(--gf-composition-height);flex-direction:column;align-items:center;transform:translateX(-50%)}
+#gfLoader .gf-brand{display:flex;width:262px;padding:0;flex-direction:column;align-items:center;gap:var(--gf-brand-gap);text-align:center}
+#gfLoader .gf-emblem{width:64px!important;height:64px!important;margin:0!important;flex:0 0 64px}
+#gfLoader .gf-logo-art{display:block;width:218px;height:var(--gf-logo-art-height);overflow:hidden;flex:0 0 var(--gf-logo-art-height);filter:drop-shadow(0 12px 28px rgba(0,0,0,0.5))}
+#gfLoader .gf-logo{display:block;width:218px;margin:0;filter:none}
+#gfLoader .gf-logo img{display:block;width:218px;height:auto;transform:translateY(calc(-1 * var(--gf-logo-art-offset)))}
+#gfLoader .gf-center,#gfLoader .gf-bottom{display:contents}
+#gfLoader .gf-wheel{box-sizing:content-box;width:62px;height:62px;margin-top:52px;border-width:3px;animation-duration:1.65s;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 0 18px rgba(143,57,255,0.22)}
+#gfLoader .gf-loading{width:262px;max-width:none;min-height:38px;margin-top:17px;font-size:17px;letter-spacing:0.07em;text-shadow:0 8px 20px rgba(0,0,0,0.72)}
+#gfLoader .gf-loading-word{margin-left:0.18em}
+#gfLoader .gf-progress{width:284px;height:7px;margin:19px 0 0;opacity:0.82}
+#gfLoader .gf-progress-fill{background:linear-gradient(90deg,#7000F7 0%,#9B00FF 15%,#C500D6 30%,#ED007A 50%,#FF0045 68%,#FF4A1C 82%,#FF7A00 92%,#FFA000 100%);box-shadow:0 0 18px rgba(162,48,255,0.58),0 0 28px rgba(255,74,28,0.34)}
+}
+@media (prefers-reduced-motion: reduce){
 #gfLoader .gf-backdrop-image{transform:none;transition:opacity 180ms ease}
 #gfLoader.gf-galaxy-loaded .gf-backdrop-image{transform:none}
+}
+@media (max-width:640px) and (prefers-reduced-motion:reduce){
+#gfLoader .gf-backdrop-image,#gfLoader.gf-galaxy-loaded .gf-backdrop-image{transform:translateX(-50%)}
 }
 @media (max-width:640px){
 #gfLoader.gf-loader-standard-page .gf-brand,#gfLoader.gf-loader-embed-page .gf-brand{width:262px}
@@ -273,11 +371,13 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 `;
 
     const ensureStyleTag = () => {
-      if (document.getElementById(STYLE_ID)) return;
+      if (document.getElementById(STYLE_ID)) return false;
       const style = document.createElement("style");
       style.id = STYLE_ID;
+      style.dataset.gfShellVersion = SHELL_VERSION;
       style.textContent = buildLoaderStyle();
       (document.head || document.documentElement).append(style);
+      return true;
     };
 
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -361,25 +461,25 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       };
     };
 
-    const getPath = () =>
-      new URL(window.location.href).pathname.toLowerCase().replace(/\/{2,}/g, "/") ||
-      "/";
+    const getPath = () => {
+      const collapsed =
+        new URL(window.location.href).pathname.toLowerCase().replace(/\/{2,}/g, "/") ||
+        "/";
+      return collapsed.length > 1 ? collapsed.replace(/\/+$/, "") : collapsed;
+    };
+
+    const isPathAtOrBelow = (path, root) =>
+      path === root || (root !== "/" && path.startsWith(`${root}/`));
 
     const classifyPage = () => {
       const path = getPath();
-      const normalized = path.endsWith("/") && path !== "/" ? path.slice(0, -1) : path;
-
       if (LOADER_RULES.embedPages[path]) {
         return { path, ...LOADER_RULES.embedPages[path] };
       }
 
-      if (LOADER_RULES.embedPages[normalized]) {
-        return { path: normalized, ...LOADER_RULES.embedPages[normalized] };
-      }
-
-      for (const prefix of LOADER_RULES.embedPagePrefixes) {
-        if (path.startsWith(prefix)) {
-          return { path: prefix, expectedEmbeds: 1 };
+      for (const root of LOADER_RULES.embedPageRoots) {
+        if (isPathAtOrBelow(path, root)) {
+          return { path, root, expectedEmbeds: 1 };
         }
       }
 
@@ -508,28 +608,53 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 
     const buildLoaderMarkup = () => `
           <div class="gf-backdrop" aria-hidden="true"></div>
-          <div class="gf-backdrop-image" aria-hidden="true"></div>
-          <section class="gf-brand" aria-label="GYMFUSION">
-            <div class="gf-emblem" aria-hidden="true"></div>
-            <picture class="gf-logo">
-              <source srcset="${assetUrl(CONFIG.titleLogoBase, "avif")}" type="image/avif">
-              <source srcset="${assetUrl(CONFIG.titleLogoBase, "webp")}" type="image/webp">
-              <img src="${assetUrl(CONFIG.titleLogoBase, "png")}" alt="GYMFUSION">
-            </picture>
-          </section>
-          <section class="gf-center">
-            <div class="gf-wheel" aria-hidden="true"></div>
-            <div class="gf-loading">
-              <span>Loading...</span>
-              <span id="gfLoadingText" class="gf-loading-word">${LOADER_RULES.standard.messages[0]}</span>
-            </div>
-          </section>
-          <div class="gf-bottom" aria-hidden="true">
-            <div class="gf-progress">
-              <div id="gfProgressFill" class="gf-progress-fill"></div>
+          <div class="gf-backdrop-image gf-background-canvas" aria-hidden="true"></div>
+          <div class="gf-composition">
+            <section class="gf-brand" aria-label="GYMFUSION">
+              <div class="gf-emblem" aria-hidden="true"></div>
+              <div class="gf-logo-art">
+                <picture class="gf-logo">
+                  <source srcset="${assetUrl(CONFIG.titleLogoBase, "avif")}" type="image/avif">
+                  <source srcset="${assetUrl(CONFIG.titleLogoBase, "webp")}" type="image/webp">
+                  <img src="${assetUrl(CONFIG.titleLogoBase, "png")}" alt="GYMFUSION">
+                </picture>
+              </div>
+            </section>
+            <section class="gf-center">
+              <div class="gf-wheel" aria-hidden="true"></div>
+              <div class="gf-loading">
+                <span>Loading...</span>
+                <span id="gfLoadingText" class="gf-loading-word">${LOADER_RULES.standard.messages[0]}</span>
+              </div>
+            </section>
+            <div class="gf-bottom" aria-hidden="true">
+              <div class="gf-progress">
+                <div id="gfProgressFill" class="gf-progress-fill"></div>
+              </div>
             </div>
           </div>
         `;
+
+    const REQUIRED_LEGACY_SELECTORS = [
+      ".gf-backdrop",
+      ".gf-backdrop-image",
+      ".gf-brand",
+      ".gf-wheel",
+      ".gf-loading",
+      "#gfLoadingText",
+      ".gf-progress",
+      "#gfProgressFill",
+    ];
+
+    const REQUIRED_V2_SELECTORS = [
+      ...REQUIRED_LEGACY_SELECTORS,
+      ".gf-background-canvas",
+      ".gf-composition",
+      ".gf-logo-art",
+    ];
+
+    const validateShell = (shell, selectors) =>
+      selectors.every((selector) => shell.querySelector(selector));
 
     const ensureLoaderShell = () => {
       let shell = document.getElementById("gfLoader");
@@ -537,23 +662,29 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       if (!shell) {
         shell = document.createElement("div");
         shell.id = "gfLoader";
-        shell.className = "gf-loader-standard-page";
+        const pageMode = classifyPage() || hasEmbeds() ? "embed" : "standard";
+        shell.className = `gf-loader-${pageMode}-page`;
+        shell.dataset.gfPageMode = pageMode;
+        shell.dataset.gfShellVersion = SHELL_VERSION;
         shell.setAttribute("role", "status");
         shell.setAttribute("aria-live", "polite");
         shell.setAttribute("aria-label", "Loading GYMFUSION");
+        shell.innerHTML = buildLoaderMarkup();
+        applyFrozenViewportMetrics(shell);
         document.body.prepend(shell);
       }
 
-      if (
-        !shell.querySelector(".gf-backdrop") ||
-        !shell.querySelector(".gf-backdrop-image") ||
-        !shell.querySelector(".gf-brand") ||
-        !shell.querySelector("#gfProgressFill")
-      ) {
-        shell.innerHTML = buildLoaderMarkup();
+      const shellVersion = shell.dataset.gfShellVersion || "legacy";
+      const requiredSelectors = shellVersion === SHELL_VERSION
+        ? REQUIRED_V2_SELECTORS
+        : REQUIRED_LEGACY_SELECTORS;
+
+      if (!validateShell(shell, requiredSelectors)) {
+        throw new Error(`Unsupported or incomplete GymFusion ${shellVersion} loader shell`);
       }
 
       PAGE_STATE.shell = shell;
+      PAGE_STATE.shellVersion = shellVersion;
       PAGE_STATE.progressFill = shell.querySelector("#gfProgressFill");
       PAGE_STATE.loadingText = shell.querySelector("#gfLoadingText");
       return shell;
@@ -870,19 +1001,48 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
         return;
       }
 
-      ensureStyleTag();
       const pageInfo = classifyPage();
-      const isEmbedPage = Boolean(pageInfo || hasEmbeds());
+      const classifiedIsEmbedPage = Boolean(pageInfo || hasEmbeds());
+      const existingShell = document.getElementById("gfLoader");
+
+      if (!existingShell) {
+        ensureStyleTag();
+      } else if (
+        existingShell.dataset.gfShellVersion === SHELL_VERSION &&
+        !document.getElementById(STYLE_ID)
+      ) {
+        throw new Error("GymFusion V2 bootstrap shell is missing its authoritative stylesheet");
+      }
+
+      document.documentElement.classList.add("gf-loading-active");
+      lockPageScroll();
+      const shell = ensureLoaderShell();
+      const shellMode = shell.dataset.gfPageMode;
+      const isV2Shell = PAGE_STATE.shellVersion === SHELL_VERSION;
+
+      if (
+        isV2Shell &&
+        (shellMode !== "standard" && shellMode !== "embed")
+      ) {
+        throw new Error("GymFusion V2 bootstrap shell has no valid frozen page classification");
+      }
+
+      const isEmbedPage = isV2Shell ? shellMode === "embed" : classifiedIsEmbedPage;
       const loaderConfig = isEmbedPage ? LOADER_RULES.embed : LOADER_RULES.standard;
       const expectedEmbeds =
         pageInfo?.expectedEmbeds || Math.max(1, document.querySelectorAll("iframe").length);
       const messages = loaderConfig.messages;
 
-      document.documentElement.classList.add("gf-loading-active");
-      lockPageScroll();
-      const shell = ensureLoaderShell();
-      shell.classList.toggle("gf-loader-embed-page", isEmbedPage);
-      shell.classList.toggle("gf-loader-standard-page", !isEmbedPage);
+      if (
+        isV2Shell &&
+        !shell.classList.contains(`gf-loader-${shellMode}-page`)
+      ) {
+        throw new Error("GymFusion V2 bootstrap class and page mode disagree");
+      }
+
+      window.dispatchEvent(new CustomEvent("gf-loader-runtime-adopted", {
+        detail: { shellVersion: PAGE_STATE.shellVersion, pageMode: shellMode || "legacy" },
+      }));
       PAGE_STATE.cursor = isEmbedPage ? createCursorEffect() : { destroy() {} };
       PAGE_STATE.startTime = performance.now();
 
