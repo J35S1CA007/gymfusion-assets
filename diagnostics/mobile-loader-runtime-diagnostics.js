@@ -65,10 +65,10 @@
   let lastViewportSignature = null;
   let lastViewportWidth = null;
   let lastViewportChangeAt = null;
-  let lastViewportMetaSignature = null;
-  let lastViewportMetaMutationAt = null;
   const viewportEventHandlers = {};
   let viewportDiagnosticsCleanup = null;
+  const seenIframes = new WeakSet();
+  const viewportMetaNodeState = new WeakMap();
 
   const now = () => Math.round(performance.now() - startedAt);
   const getNavigationDetails = () => {
@@ -190,33 +190,8 @@
       state.viewportMeta.exists,
       state.viewportMeta.content,
     ]);
-  const logViewportMetaMutation = (reason, state) => {
-    const signature = `${state.viewportMeta.exists ? "1" : "0"}|${state.viewportMeta.content || ""}`;
-    if (signature === lastViewportMetaSignature) return;
-    const previous = lastViewportMetaSignature;
-    lastViewportMetaSignature = signature;
-    const changeType =
-      previous === null
-        ? "observed"
-        : !state.viewportMeta.exists
-          ? "removed"
-          : !previous.startsWith("1|") && state.viewportMeta.exists
-            ? "added"
-            : "modified";
-    const entry = {
-      at: now(),
-      reason,
-      changeType,
-      exists: state.viewportMeta.exists,
-      content: state.viewportMeta.content,
-      previousSignature: previous,
-    };
-    lastViewportMetaMutationAt = entry.at;
-    viewportMetaTimeline.push(entry);
-  };
   const captureViewportSample = (reason, detail = {}) => {
     const state = viewportState();
-    logViewportMetaMutation(reason, state);
     const signature = viewportSignature(state);
     const changed = signature !== lastViewportSignature;
     const widthChanged = lastViewportWidth !== null && state.innerWidth !== lastViewportWidth;
@@ -273,7 +248,6 @@
   };
   const recordViewportEvent = (name, event = {}) => {
     const state = viewportState();
-    logViewportMetaMutation(name, state);
     const entry = {
       at: now(),
       event: name,
@@ -618,6 +592,124 @@
       className: node.className || null,
     };
   };
+  const isViewportMetaNode = (node) =>
+    Boolean(node && node.nodeType === Node.ELEMENT_NODE && node.tagName === "META" && node.getAttribute("name") === "viewport");
+  const viewportMetaContent = (node) => {
+    if (!node || node.nodeType !== Node.ELEMENT_NODE) return null;
+    try {
+      return node.getAttribute("content");
+    } catch {
+      return null;
+    }
+  };
+  const viewportMetaSnapshot = (node) => {
+    const previous = viewportMetaNodeState.get(node) || { content: null, isViewport: false };
+    const current = {
+      content: viewportMetaContent(node),
+      isViewport: isViewportMetaNode(node),
+    };
+    return { previous, current };
+  };
+  const storeViewportMetaState = (node) => {
+    viewportMetaNodeState.set(node, {
+      content: viewportMetaContent(node),
+      isViewport: isViewportMetaNode(node),
+    });
+  };
+  const recordViewportMetaTimeline = ({
+    changeType,
+    node,
+    parent,
+    previousContent,
+    newContent,
+    reason,
+    timestamp,
+  }) => {
+    const content = typeof newContent === "string" ? newContent : node ? node.getAttribute("content") : null;
+    const entry = {
+      at: typeof timestamp === "number" ? timestamp : now(),
+      reason,
+      changeType,
+      exists: Boolean(node && node.isConnected),
+      previousContent: previousContent ?? null,
+      content: content ?? null,
+      newContent: content ?? null,
+      mutationTarget: describeElement(node),
+      parent: describeElement(parent),
+    };
+    viewportMetaTimeline.push(entry);
+  };
+  const recordViewportMetaObservation = (node, parent, reason, timestamp) => {
+    if (!node || node.nodeType !== Node.ELEMENT_NODE || node.tagName !== "META") return;
+    const { previous, current } = viewportMetaSnapshot(node);
+    if (current.isViewport) {
+      const changeType = previous.isViewport ? (previous.content === current.content ? null : "modified") : "added";
+      if (changeType) {
+        recordViewportMetaTimeline({
+          changeType,
+          node,
+          parent,
+          previousContent: previous.content,
+          newContent: current.content,
+          reason,
+          timestamp,
+        });
+      }
+    } else if (previous.isViewport) {
+      recordViewportMetaTimeline({
+        changeType: "removed",
+        node,
+        parent,
+        previousContent: previous.content,
+        newContent: current.content,
+        reason,
+        timestamp,
+      });
+    }
+    storeViewportMetaState(node);
+  };
+  const scanForViewportMeta = (root, parent, reason, timestamp) => {
+    if (!root || root.nodeType !== Node.ELEMENT_NODE) return;
+    if (isViewportMetaNode(root)) {
+      recordViewportMetaObservation(root, parent, reason, timestamp);
+      return;
+    }
+    root.querySelectorAll('meta[name="viewport"]').forEach((meta) => {
+      recordViewportMetaObservation(meta, root, reason, timestamp);
+    });
+  };
+  const recordIframeNode = (node, parent, timestamp, reason) => {
+    if (!node || node.nodeType !== Node.ELEMENT_NODE) return;
+    if (node.tagName !== "IFRAME" || seenIframes.has(node)) return;
+    seenIframes.add(node);
+    iframeTimeline.push({
+      at: typeof timestamp === "number" ? timestamp : now(),
+      reason,
+      added: describeAddedNode(node),
+      containingNode: describeAddedNode(parent) || describeElement(parent),
+      parent: describeElement(parent),
+      src: (() => {
+        try {
+          return node.getAttribute("src") || node.src || null;
+        } catch {
+          return null;
+        }
+      })(),
+      state: viewportState(),
+      coincidesWithViewportChange:
+        lastViewportChangeAt !== null && Math.abs((typeof timestamp === "number" ? timestamp : now()) - lastViewportChangeAt) <= 75,
+    });
+  };
+  const scanForIframes = (root, parent, timestamp, reason) => {
+    if (!root || root.nodeType !== Node.ELEMENT_NODE) return;
+    if (root.tagName === "IFRAME") {
+      recordIframeNode(root, parent, timestamp, reason);
+      return;
+    }
+    root.querySelectorAll("iframe").forEach((iframe) => {
+      recordIframeNode(iframe, root, timestamp, reason);
+    });
+  };
   const startViewportDiagnostics = () => {
     captureViewportSample("diagnostic start", { force: true });
 
@@ -667,61 +759,51 @@
     const viewportObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         const timestamp = now();
+        if (mutation.type === "attributes" && mutation.target && mutation.target.tagName === "META") {
+          recordViewportMetaObservation(mutation.target, mutation.target.parentElement, "attribute-mutation", timestamp);
+        }
+
         mutation.addedNodes.forEach((node) => {
           const info = describeAddedNode(node);
           if (!info) return;
-          const entry = {
-            at: timestamp,
-            mutationType: mutation.type,
-            added: info,
-            parent: describeElement(mutation.target),
-            coincidesWithViewportChange:
-              lastViewportChangeAt !== null && Math.abs(timestamp - lastViewportChangeAt) <= 75,
-            state: viewportState(),
-          };
-          if (info.tagName === "IFRAME") {
-            iframeTimeline.push(entry);
-          }
           if (mutation.target === document.body || document.body.contains(mutation.target)) {
-            bodyMutationTimeline.push(entry);
-          }
-          if (info.tagName === "META" && info.selector === 'meta[name="viewport"]') {
-            viewportMetaTimeline.push({
+            bodyMutationTimeline.push({
               at: timestamp,
-              reason: "mutation-observer",
-              changeType: "mutated",
-              exists: Boolean(getViewportMetaElement()),
-              content: getViewportMetaElement()
-                ? getViewportMetaElement().getAttribute("content")
-                : null,
-              mutationTarget: describeElement(mutation.target),
+              mutationType: mutation.type,
+              added: info,
+              parent: describeElement(mutation.target),
+              coincidesWithViewportChange:
+                lastViewportChangeAt !== null && Math.abs(timestamp - lastViewportChangeAt) <= 75,
+              state: viewportState(),
             });
           }
+          scanForViewportMeta(node, mutation.target, "mutation-added", timestamp);
+          scanForIframes(node, mutation.target, timestamp, "mutation-added");
         });
-        if (
-          mutation.type === "attributes" &&
-          mutation.target &&
-          mutation.target.tagName === "META" &&
-          mutation.target.getAttribute("name") === "viewport"
-        ) {
-          viewportMetaTimeline.push({
-            at: timestamp,
-            reason: "attribute-mutation",
-            changeType: "modified",
-            exists: Boolean(getViewportMetaElement()),
-            content: getViewportMetaElement()
-              ? getViewportMetaElement().getAttribute("content")
-              : null,
-            mutationTarget: describeElement(mutation.target),
-          });
-        }
+        mutation.removedNodes.forEach((node) => {
+          const info = describeAddedNode(node);
+          if (!info) return;
+          if (mutation.target === document.body || document.body.contains(mutation.target)) {
+            bodyMutationTimeline.push({
+              at: timestamp,
+              mutationType: mutation.type,
+              removed: info,
+              parent: describeElement(mutation.target),
+              coincidesWithViewportChange:
+                lastViewportChangeAt !== null && Math.abs(timestamp - lastViewportChangeAt) <= 75,
+              state: viewportState(),
+            });
+          }
+          scanForViewportMeta(node, mutation.target, "mutation-removed", timestamp);
+          scanForIframes(node, mutation.target, timestamp, "mutation-removed");
+        });
       });
     });
     viewportObserver.observe(document.documentElement, {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["content"],
+      attributeFilter: ["content", "name"],
     });
     observers.push(viewportObserver);
 
@@ -731,8 +813,13 @@
       reason: "initial observation",
       changeType: initialViewportMeta ? "observed" : "absent",
       exists: Boolean(initialViewportMeta),
+      previousContent: null,
       content: initialViewportMeta ? initialViewportMeta.getAttribute("content") : null,
+      newContent: initialViewportMeta ? initialViewportMeta.getAttribute("content") : null,
     });
+    if (initialViewportMeta) {
+      storeViewportMetaState(initialViewportMeta);
+    }
 
     if (document.readyState !== "loading") {
       viewportEvents.push({
