@@ -31,6 +31,20 @@
   const classHistory = [];
   const observers = [];
   const timers = [];
+  const bootstrapGlobalNames = [
+    "__gymfusionLoaderBootstrapInstalled",
+    "__gymfusionLoaderInstalled",
+    "__gymfusionLoaderBootstrapTimedOut",
+  ];
+  const discovery = {
+    diagnosticScriptStart: 0,
+    bootstrapGlobalFirstObserved: {},
+    bootstrapGlobalFirstDefined: {},
+    loaderFirstDetected: null,
+    productionScriptFirstDetected: null,
+    externalStyleFirstDetected: null,
+    loaderDetectionTimeout: null,
+  };
   let loader = null;
   let originalLoaderRemove = null;
   let panel = null;
@@ -44,6 +58,77 @@
   let galaxySeen = false;
 
   const now = () => Math.round(performance.now() - startedAt);
+  const productionScripts = () =>
+    Array.from(document.querySelectorAll("script"))
+      .filter((script) => script.src && script.src.includes("gymfusion-loader.js"))
+      .map((script) => ({
+        id: script.id || null,
+        src: script.src,
+        async: script.async,
+        defer: script.defer,
+      }));
+  const updateDiscovery = () => {
+    const current = now();
+    bootstrapGlobalNames.forEach((name) => {
+      if (discovery.bootstrapGlobalFirstObserved[name] === undefined) {
+        discovery.bootstrapGlobalFirstObserved[name] = current;
+      }
+      if (
+        discovery.bootstrapGlobalFirstDefined[name] === undefined &&
+        typeof window[name] !== "undefined"
+      ) {
+        discovery.bootstrapGlobalFirstDefined[name] = current;
+      }
+    });
+    if (discovery.loaderFirstDetected === null && document.getElementById("gfLoader")) {
+      discovery.loaderFirstDetected = current;
+    }
+    if (discovery.productionScriptFirstDetected === null && productionScripts().length > 0) {
+      discovery.productionScriptFirstDetected = current;
+    }
+    if (discovery.externalStyleFirstDetected === null && document.getElementById("gf-loader-style")) {
+      discovery.externalStyleFirstDetected = current;
+    }
+  };
+  const valueOfGlobal = (name) => {
+    if (typeof window[name] === "undefined") {
+      return null;
+    }
+    return window[name];
+  };
+  const bootstrapState = () => {
+    updateDiscovery();
+    const globals = {};
+    bootstrapGlobalNames.forEach((name) => {
+      globals[name] = {
+        value: valueOfGlobal(name),
+        type: typeof window[name],
+        firstObservedAt: discovery.bootstrapGlobalFirstObserved[name],
+        firstDefinedAt: discovery.bootstrapGlobalFirstDefined[name] ?? null,
+      };
+    });
+    const navigationEntry = performance.getEntriesByType
+      ? performance.getEntriesByType("navigation")[0]
+      : null;
+    return {
+      globals,
+      documentReadyState: document.readyState,
+      navigationType: navigationEntry ? navigationEntry.type : null,
+      gfLoaderExists: Boolean(document.getElementById("gfLoader")),
+      gfLoaderStyleExists: Boolean(document.getElementById("gf-loader-style")),
+      productionScriptPresent: productionScripts().length > 0,
+      productionScripts: productionScripts(),
+      discovery: {
+        diagnosticScriptStart: discovery.diagnosticScriptStart,
+        bootstrapGlobalFirstObserved: { ...discovery.bootstrapGlobalFirstObserved },
+        bootstrapGlobalFirstDefined: { ...discovery.bootstrapGlobalFirstDefined },
+        loaderFirstDetected: discovery.loaderFirstDetected,
+        productionScriptFirstDetected: discovery.productionScriptFirstDetected,
+        externalStyleFirstDetected: discovery.externalStyleFirstDetected,
+        loaderDetectionTimeout: discovery.loaderDetectionTimeout,
+      },
+    };
+  };
   const modeOf = (className) => {
     if (!className) return "none";
     if (className.includes("gf-loader-embed-page")) return "embed";
@@ -102,9 +187,7 @@
     className: loader ? loader.className : null,
     mode: loader ? modeOf(loader.className) : "none",
     hasExternalStyle: Boolean(document.getElementById("gf-loader-style")),
-    productionScriptUrl: document.getElementById("gf-loader-external-script")
-      ? document.getElementById("gf-loader-external-script").src
-      : null,
+    productionScriptUrl: productionScripts()[0] ? productionScripts()[0].src : null,
     galaxyLoaded: Boolean(loader && loader.classList.contains("gf-galaxy-loaded")),
   });
   const components = () => {
@@ -130,6 +213,7 @@
       at: now(),
       stage,
       environment: environment(),
+      bootstrap: bootstrapState(),
       loader: loaderState(),
       components: components(),
     };
@@ -357,6 +441,7 @@
       }
       if (performance.now() - started > 6000) {
         observer.disconnect();
+        discovery.loaderDetectionTimeout = now();
         snapshot("loader detection timed out", { force: true });
         createPanel();
         return;
@@ -366,6 +451,12 @@
     };
     poll();
   };
+
+  const discoveryObserver = new MutationObserver(() => {
+    updateDiscovery();
+  });
+  discoveryObserver.observe(document.documentElement, { childList: true, subtree: true });
+  observers.push(discoveryObserver);
 
   snapshot("diagnostic script started", { force: true });
   waitForLoader();
