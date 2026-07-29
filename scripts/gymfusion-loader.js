@@ -87,6 +87,104 @@
     const buildImageSet = (baseName) =>
       `image-set(url("${assetUrl(baseName, "avif")}") type("image/avif"),url("${assetUrl(baseName, "webp")}") type("image/webp"),url("${assetUrl(baseName, "png")}") type("image/png"))`;
 
+    const SCROLL_BLOCK_KEYS = new Set(["Space", "PageDown", "PageUp", "End", "Home", "ArrowDown", "ArrowUp"]);
+    let scrollLockState = null;
+
+    const isEditableTarget = (target) => {
+      const element = target instanceof Element ? target : null;
+      return Boolean(
+        element &&
+          element.closest('input,textarea,select,[contenteditable="true"],[contenteditable=""]')
+      );
+    };
+
+    const preventScrollEvent = (event) => {
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+    };
+
+    const preventScrollKeys = (event) => {
+      if (event.defaultPrevented || isEditableTarget(event.target)) {
+        return;
+      }
+
+      if (SCROLL_BLOCK_KEYS.has(event.code) || [" ", "PageDown", "PageUp", "End", "Home", "ArrowDown", "ArrowUp"].includes(event.key)) {
+        event.preventDefault();
+      }
+    };
+
+    const restoreInlineStyle = (element, snapshot) => {
+      for (const [property, value] of Object.entries(snapshot)) {
+        if (value) {
+          element.style.setProperty(property, value);
+        } else {
+          element.style.removeProperty(property);
+        }
+      }
+    };
+
+    const lockPageScroll = () => {
+      if (scrollLockState || !document.body) {
+        return;
+      }
+
+      const body = document.body;
+      const root = document.documentElement;
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+
+      scrollLockState = {
+        scrollY,
+        body: {
+          position: body.style.position,
+          top: body.style.top,
+          left: body.style.left,
+          right: body.style.right,
+          width: body.style.width,
+          overflow: body.style.overflow,
+          overscrollBehavior: body.style.overscrollBehavior,
+          touchAction: body.style.touchAction,
+        },
+        root: {
+          overflow: root.style.overflow,
+          overscrollBehavior: root.style.overscrollBehavior,
+          touchAction: root.style.touchAction,
+        },
+      };
+
+      body.style.position = "fixed";
+      body.style.top = `-${scrollY}px`;
+      body.style.left = "0";
+      body.style.right = "0";
+      body.style.width = "100%";
+      body.style.overflow = "hidden";
+      body.style.overscrollBehavior = "none";
+      body.style.touchAction = "none";
+      root.style.overflow = "hidden";
+      root.style.overscrollBehavior = "none";
+      root.style.touchAction = "none";
+
+      window.addEventListener("wheel", preventScrollEvent, { passive: false });
+      window.addEventListener("touchmove", preventScrollEvent, { passive: false });
+      window.addEventListener("keydown", preventScrollKeys, true);
+    };
+
+    const unlockPageScroll = () => {
+      if (!scrollLockState || !document.body) {
+        return;
+      }
+
+      window.removeEventListener("wheel", preventScrollEvent);
+      window.removeEventListener("touchmove", preventScrollEvent);
+      window.removeEventListener("keydown", preventScrollKeys, true);
+
+      const { scrollY, body, root } = scrollLockState;
+      scrollLockState = null;
+      restoreInlineStyle(document.body, body);
+      restoreInlineStyle(document.documentElement, root);
+      window.scrollTo(0, scrollY);
+    };
+
     const getBackgroundSelection = () =>
       window.matchMedia(`(max-width: ${CONFIG.mobileBreakpointPx}px)`).matches
         ? {
@@ -105,7 +203,7 @@
 @font-face{font-family:"GamuthDisplay";src:url("${assetUrl("Gamuth Font Family/GamuthSansWeb-Bold.display", "woff2")}") format("woff2");font-display:swap}
 :root{--gf-black:#050407;--gf-purple:#a230ff;--gf-purple-soft:#c9a6ff;--gf-white:#fff7ee;--gf-galaxy:${buildImageSet(CONFIG.desktopBackgroundBase)};--gf-galaxy-position:${CONFIG.desktopBackgroundPosition}}
 @media (max-width:${CONFIG.mobileBreakpointPx}px){:root{--gf-galaxy:${buildImageSet(CONFIG.mobileBackgroundBase)};--gf-galaxy-position:${CONFIG.mobileBackgroundPosition}}}
-html.gf-loading-active,html.gf-loading-active body{overflow:hidden !important}
+html.gf-loading-active,html.gf-loading-active body{overflow:hidden!important;overscroll-behavior:none;touch-action:none}
 #gfLoader{position:fixed;inset:0;z-index:2147483647;display:grid;grid-template-rows:minmax(160px,33vh) 1fr auto;min-height:100dvh;overflow:hidden;background:var(--gf-black);opacity:1;transform:scale(1);transform-origin:center;transition:opacity 260ms ease 760ms}
 #gfLoader.gf-loader-standard-page{background:var(--gf-black)}
 #gfLoader.gf-loader-embed-page{background:var(--gf-black)}
@@ -152,9 +250,7 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 .gf-cursor-canvas{position:fixed;inset:0;z-index:2147483647;width:100vw;height:100vh;pointer-events:none;mix-blend-mode:screen;opacity:0.95}
 @keyframes gfSpin{to{transform:rotate(360deg)}}
 @keyframes gfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media (max-width:640px){#gfLoader{grid-template-rows:164px auto auto}#gfLoader.gf-galaxy-loaded .gf-backdrop{opacity:0}#gfLoader .gf-backdrop-image{background-size:auto,100% auto;background-position:center,center top}.gf-brand{width:min(262px,calc(100vw - 36px))}.gf-loading{width:min(262px,calc(100vw - 36px));max-width:none;font-size:17px;letter-spacing:0.07em}#gfLoader .gf-emblem{width:64px!important;height:64px!important;margin:48px auto -30px!important}.gf-logo{width:min(218px,calc(100vw - 36px))}#gfLoader.gf-loader-standard-page .gf-wheel,#gfLoader.gf-loader-embed-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 0 18px rgba(143,57,255,0.22)}#gfLoader.gf-loader-standard-page .gf-progress,#gfLoader.gf-loader-embed-page .gf-progress{width:min(284px,calc(100vw - 36px));height:7px;opacity:0.82}#gfLoader.gf-loader-standard-page .gf-progress-fill,#gfLoader.gf-loader-embed-page .gf-progress-fill{background:linear-gradient(90deg,#7000F7 0%,#9B00FF 15%,#C500D6 30%,#ED007A 50%,#FF0045 68%,#FF4A1C 82%,#FF7A00 92%,#FFA000 100%);box-shadow:0 0 18px rgba(162,48,255,0.58),0 0 28px rgba(255,74,28,0.34)}#gfLoader.gf-loader-standard-page .gf-loading,#gfLoader.gf-loader-embed-page .gf-loading{text-shadow:0 8px 20px rgba(0,0,0,0.72)}.gf-loading-word{margin-left:0.18em}.gf-center{transform:none}}
-
-@media (prefers-reduced-motion: reduce){
+@media (max-width:640px){#gfLoader{grid-template-rows:164px 310px 73px;align-content:start}#gfLoader.gf-galaxy-loaded .gf-backdrop{opacity:0}#gfLoader .gf-backdrop-image{background-size:auto,100% auto;background-position:center,center top;transform:none}#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86;transform:none}.gf-brand{width:262px}#gfLoader .gf-emblem{width:64px!important;height:64px!important;margin:48px auto -30px!important}.gf-logo{width:218px}.gf-logo img{width:218px;height:auto}#gfLoader.gf-loader-standard-page .gf-wheel,#gfLoader.gf-loader-embed-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 0 18px rgba(143,57,255,0.22)}#gfLoader.gf-loader-standard-page .gf-progress,#gfLoader.gf-loader-embed-page .gf-progress{width:284px;height:7px;opacity:0.82}#gfLoader.gf-loader-standard-page .gf-progress-fill,#gfLoader.gf-loader-embed-page .gf-progress-fill{background:linear-gradient(90deg,#050407 0%,#2a0f43 16%,#a230ff 58%,#c9a6ff 100%);box-shadow:0 0 18px rgba(143,57,255,0.48)}#gfLoader.gf-loader-standard-page .gf-loading,#gfLoader.gf-loader-embed-page .gf-loading{width:262px;max-width:none;text-shadow:0 8px 20px rgba(0,0,0,0.72)}.gf-wheel{width:68px;height:68px}.gf-loading{font-size:17px;letter-spacing:0.07em}.gf-loading-word{margin-left:0.18em}.gf-center{align-self:start;justify-content:flex-start;padding-top:84px;transform:none}}@media (prefers-reduced-motion: reduce){
 #gfLoader .gf-backdrop-image{transform:none;transition:opacity 180ms ease}
 #gfLoader.gf-galaxy-loaded .gf-backdrop-image{transform:none}
 }
@@ -736,6 +832,7 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       PAGE_STATE.shell?.remove();
       PAGE_STATE.cursor?.destroy();
       document.documentElement.classList.remove("gf-loading-active");
+      unlockPageScroll();
     };
 
     const failSafe = (error) => {
@@ -754,6 +851,7 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       PAGE_STATE.shell?.remove();
       document.getElementById("gfLoader")?.remove();
       document.documentElement.classList.remove("gf-loading-active");
+      unlockPageScroll();
     };
 
     const run = async () => {
@@ -772,6 +870,7 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       const messages = loaderConfig.messages;
 
       document.documentElement.classList.add("gf-loading-active");
+      lockPageScroll();
       const shell = ensureLoaderShell();
       shell.classList.toggle("gf-loader-embed-page", isEmbedPage);
       shell.classList.toggle("gf-loader-standard-page", !isEmbedPage);
@@ -840,5 +939,6 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
     console.warn("[GymFusion Loader] fatal startup error.", error);
     document.documentElement.classList.remove("gf-loading-active");
     document.getElementById("gfLoader")?.remove();
+    unlockPageScroll();
   }
 })();
