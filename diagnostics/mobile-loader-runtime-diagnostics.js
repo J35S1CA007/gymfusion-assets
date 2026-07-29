@@ -575,11 +575,11 @@
     }
     observers.splice(0).forEach((observer) => observer.disconnect());
     timers.splice(0).forEach((timer) => window.clearTimeout(timer));
-    document.getElementById("gf-mobile-loader-diagnostic-style")?.remove();
   };
   const closeDiagnostics = () => {
     stopDiagnostics();
     panel?.remove();
+    document.getElementById("gf-mobile-loader-diagnostic-style")?.remove();
     panel = null;
     output = null;
     statusNode = null;
