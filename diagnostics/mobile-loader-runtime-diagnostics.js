@@ -29,6 +29,11 @@
   };
   const snapshots = [];
   const classHistory = [];
+  const viewportEvents = [];
+  const viewportSamples = [];
+  const viewportMetaTimeline = [];
+  const iframeTimeline = [];
+  const bodyMutationTimeline = [];
   const observers = [];
   const timers = [];
   const bootstrapGlobalNames = [
@@ -56,8 +61,246 @@
   let removalIntercepted = false;
   let lastClassName = null;
   let galaxySeen = false;
+  let viewportTrackingStopped = false;
+  let lastViewportSignature = null;
+  let lastViewportWidth = null;
+  let lastViewportChangeAt = null;
+  let lastViewportMetaSignature = null;
+  let lastViewportMetaMutationAt = null;
+  const viewportEventHandlers = {};
+  let viewportDiagnosticsCleanup = null;
 
   const now = () => Math.round(performance.now() - startedAt);
+  const getNavigationDetails = () => {
+    const entry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
+    if (!entry) return null;
+    return {
+      name: entry.name,
+      entryType: entry.entryType,
+      startTime: entry.startTime,
+      duration: entry.duration,
+      type: entry.type,
+      redirectCount: entry.redirectCount,
+      transferSize: entry.transferSize,
+      encodedBodySize: entry.encodedBodySize,
+      decodedBodySize: entry.decodedBodySize,
+      domInteractive: entry.domInteractive,
+      domContentLoadedEventStart: entry.domContentLoadedEventStart,
+      domContentLoadedEventEnd: entry.domContentLoadedEventEnd,
+      loadEventStart: entry.loadEventStart,
+      loadEventEnd: entry.loadEventEnd,
+      fetchStart: entry.fetchStart,
+      responseStart: entry.responseStart,
+      responseEnd: entry.responseEnd,
+      workerStart: entry.workerStart,
+      activationStart: entry.activationStart,
+      nextHopProtocol: entry.nextHopProtocol,
+    };
+  };
+  const getViewportMetaElement = () => document.querySelector('meta[name="viewport"]');
+  const describeElement = (element) => {
+    if (!element) return null;
+    const tag = element.tagName.toLowerCase();
+    const id = element.id ? `#${element.id}` : "";
+    const classes = element.classList && element.classList.length ? `.${Array.from(element.classList).join(".")}` : "";
+    return `${tag}${id}${classes}`;
+  };
+  const isVisibleElement = (element) => {
+    if (!element || !element.isConnected) return false;
+    const style = window.getComputedStyle(element);
+    if (style.display === "none" || style.visibility === "hidden") return false;
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  };
+  const widestVisibleElement = () => {
+    let widest = null;
+    let widestWidth = -1;
+    let widestScrollWidth = -1;
+    const elements = document.querySelectorAll("body *");
+    elements.forEach((element) => {
+      if (!isVisibleElement(element)) return;
+      const rect = element.getBoundingClientRect();
+      const scrollWidth = element.scrollWidth || 0;
+      if (rect.width > widestWidth || (rect.width === widestWidth && scrollWidth > widestScrollWidth)) {
+        widest = element;
+        widestWidth = rect.width;
+        widestScrollWidth = scrollWidth;
+      }
+    });
+    if (!widest) return null;
+    const rect = widest.getBoundingClientRect();
+    return {
+      selector: describeElement(widest),
+      tagName: widest.tagName.toLowerCase(),
+      id: widest.id || null,
+      className: widest.className || null,
+      boundingWidth: rect.width,
+      boundingHeight: rect.height,
+      scrollWidth: widest.scrollWidth || 0,
+      exceedsViewport: rect.width > window.innerWidth || (widest.scrollWidth || 0) > window.innerWidth,
+    };
+  };
+  const viewportMetaState = () => {
+    const meta = getViewportMetaElement();
+    return {
+      exists: Boolean(meta),
+      content: meta ? meta.getAttribute("content") : null,
+    };
+  };
+  const viewportState = () => ({
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
+    clientWidth: document.documentElement.clientWidth,
+    clientHeight: document.documentElement.clientHeight,
+    visualViewportWidth: window.visualViewport ? window.visualViewport.width : null,
+    visualViewportHeight: window.visualViewport ? window.visualViewport.height : null,
+    visualViewportScale: window.visualViewport ? window.visualViewport.scale : null,
+    visualViewportOffsetLeft: window.visualViewport ? window.visualViewport.offsetLeft : null,
+    visualViewportOffsetTop: window.visualViewport ? window.visualViewport.offsetTop : null,
+    devicePixelRatio: window.devicePixelRatio,
+    screenWidth: window.screen ? window.screen.width : null,
+    screenHeight: window.screen ? window.screen.height : null,
+    screenOrientationType:
+      window.screen && window.screen.orientation ? window.screen.orientation.type : null,
+    screenOrientationAngle:
+      window.screen && window.screen.orientation ? window.screen.orientation.angle : null,
+    bodyScrollWidth: document.body ? document.body.scrollWidth : null,
+    documentScrollWidth: document.documentElement.scrollWidth,
+    viewportMeta: viewportMetaState(),
+    navigation: getNavigationDetails(),
+  });
+  const viewportSignature = (state) =>
+    JSON.stringify([
+      state.innerWidth,
+      state.innerHeight,
+      state.clientWidth,
+      state.clientHeight,
+      state.visualViewportWidth,
+      state.visualViewportHeight,
+      state.visualViewportScale,
+      state.visualViewportOffsetLeft,
+      state.visualViewportOffsetTop,
+      state.devicePixelRatio,
+      state.screenWidth,
+      state.screenHeight,
+      state.screenOrientationType,
+      state.screenOrientationAngle,
+      state.bodyScrollWidth,
+      state.documentScrollWidth,
+      state.viewportMeta.exists,
+      state.viewportMeta.content,
+    ]);
+  const logViewportMetaMutation = (reason, state) => {
+    const signature = `${state.viewportMeta.exists ? "1" : "0"}|${state.viewportMeta.content || ""}`;
+    if (signature === lastViewportMetaSignature) return;
+    const previous = lastViewportMetaSignature;
+    lastViewportMetaSignature = signature;
+    const changeType =
+      previous === null
+        ? "observed"
+        : !state.viewportMeta.exists
+          ? "removed"
+          : !previous.startsWith("1|") && state.viewportMeta.exists
+            ? "added"
+            : "modified";
+    const entry = {
+      at: now(),
+      reason,
+      changeType,
+      exists: state.viewportMeta.exists,
+      content: state.viewportMeta.content,
+      previousSignature: previous,
+    };
+    lastViewportMetaMutationAt = entry.at;
+    viewportMetaTimeline.push(entry);
+  };
+  const captureViewportSample = (reason, detail = {}) => {
+    const state = viewportState();
+    logViewportMetaMutation(reason, state);
+    const signature = viewportSignature(state);
+    const changed = signature !== lastViewportSignature;
+    const widthChanged = lastViewportWidth !== null && state.innerWidth !== lastViewportWidth;
+    const entry = {
+      at: now(),
+      reason,
+      changed,
+      detail,
+      state,
+    };
+    if (changed) {
+      entry.changedFields = [];
+      if (lastViewportSignature) {
+        const previous = JSON.parse(lastViewportSignature);
+        const current = JSON.parse(signature);
+        const labels = [
+          "innerWidth",
+          "innerHeight",
+          "clientWidth",
+          "clientHeight",
+          "visualViewportWidth",
+          "visualViewportHeight",
+          "visualViewportScale",
+          "visualViewportOffsetLeft",
+          "visualViewportOffsetTop",
+          "devicePixelRatio",
+          "screenWidth",
+          "screenHeight",
+          "screenOrientationType",
+          "screenOrientationAngle",
+          "bodyScrollWidth",
+          "documentScrollWidth",
+          "viewportMeta.exists",
+          "viewportMeta.content",
+        ];
+        labels.forEach((label, index) => {
+          if (previous[index] !== current[index]) {
+            entry.changedFields.push({ field: label, before: previous[index], after: current[index] });
+          }
+        });
+      }
+    }
+    if (widthChanged) {
+      lastViewportChangeAt = entry.at;
+      entry.widestVisibleElement = widestVisibleElement();
+      entry.viewportWidthChange = true;
+    }
+    if (!viewportSamples.length || changed || detail.force || detail.always) {
+      viewportSamples.push(entry);
+    }
+    lastViewportSignature = signature;
+    lastViewportWidth = state.innerWidth;
+    return entry;
+  };
+  const recordViewportEvent = (name, event = {}) => {
+    const state = viewportState();
+    logViewportMetaMutation(name, state);
+    const entry = {
+      at: now(),
+      event: name,
+      persisted: typeof event.persisted === "boolean" ? event.persisted : null,
+      state,
+      viewportChangedSinceLastEvent:
+        lastViewportChangeAt !== null ? now() - lastViewportChangeAt : null,
+    };
+    if (state.innerWidth !== lastViewportWidth) {
+      entry.viewportWidthChange = true;
+      entry.widestVisibleElement = widestVisibleElement();
+      lastViewportChangeAt = entry.at;
+    }
+    viewportEvents.push(entry);
+    viewportSamples.push({
+      at: entry.at,
+      reason: `event:${name}`,
+      changed: true,
+      detail: { persisted: entry.persisted },
+      state,
+      viewportWidthChange: Boolean(entry.viewportWidthChange),
+      widestVisibleElement: entry.widestVisibleElement || null,
+    });
+    lastViewportSignature = viewportSignature(state);
+    lastViewportWidth = state.innerWidth;
+    return entry;
+  };
   const productionScripts = () =>
     Array.from(document.querySelectorAll("script"))
       .filter((script) => script.src && script.src.includes("gymfusion-loader.js"))
@@ -201,6 +444,12 @@
     generatedAt: new Date().toISOString(),
     snapshots,
     classHistory,
+    viewportEvents,
+    viewportSamples,
+    viewportMetaTimeline,
+    iframeTimeline,
+    bodyMutationTimeline,
+    navigationDetails: getNavigationDetails(),
   });
   const render = () => {
     if (!output) return;
@@ -345,6 +594,10 @@
     timers.push(timer);
   };
   const clearDiagnostics = () => {
+    if (viewportDiagnosticsCleanup) {
+      viewportDiagnosticsCleanup();
+      viewportDiagnosticsCleanup = null;
+    }
     observers.splice(0).forEach((observer) => observer.disconnect());
     timers.splice(0).forEach((timer) => window.clearTimeout(timer));
     document.getElementById("gf-mobile-loader-diagnostic-style")?.remove();
@@ -353,6 +606,170 @@
     output = null;
     statusNode = null;
     fallbackBox = null;
+  };
+  const describeAddedNode = (node) => {
+    if (!node || node.nodeType !== Node.ELEMENT_NODE) {
+      return null;
+    }
+    return {
+      selector: describeElement(node),
+      tagName: node.tagName.toLowerCase(),
+      id: node.id || null,
+      className: node.className || null,
+    };
+  };
+  const startViewportDiagnostics = () => {
+    captureViewportSample("diagnostic start", { force: true });
+
+    const sampleTimer = window.setInterval(() => {
+      const at = now();
+      if (at > 3000 || viewportTrackingStopped) {
+        return;
+      }
+      captureViewportSample("50ms sample", { always: true });
+    }, 50);
+    timers.push(sampleTimer);
+
+    const stopTimer = window.setTimeout(() => {
+      viewportTrackingStopped = true;
+      captureViewportSample("viewport diagnostics stopped", { force: true });
+      window.clearInterval(sampleTimer);
+      if (viewportDiagnosticsCleanup) {
+        viewportDiagnosticsCleanup();
+        viewportDiagnosticsCleanup = null;
+      }
+    }, 3500);
+    timers.push(stopTimer);
+
+    viewportEventHandlers.windowResize = (event) => recordViewportEvent("window.resize", event || {});
+    viewportEventHandlers.orientationchange = (event) =>
+      recordViewportEvent("orientationchange", event || {});
+    viewportEventHandlers.pageshow = (event) => recordViewportEvent("pageshow", event || {});
+    viewportEventHandlers.domContentLoaded = (event) =>
+      recordViewportEvent("DOMContentLoaded", event || {});
+    viewportEventHandlers.load = (event) => recordViewportEvent("load", event || {});
+
+    window.addEventListener("resize", viewportEventHandlers.windowResize);
+    window.addEventListener("orientationchange", viewportEventHandlers.orientationchange);
+    window.addEventListener("pageshow", viewportEventHandlers.pageshow);
+    document.addEventListener("DOMContentLoaded", viewportEventHandlers.domContentLoaded);
+    window.addEventListener("load", viewportEventHandlers.load);
+
+    if (window.visualViewport) {
+      viewportEventHandlers.visualViewportResize = (event) =>
+        recordViewportEvent("visualViewport.resize", event || {});
+      viewportEventHandlers.visualViewportScroll = (event) =>
+        recordViewportEvent("visualViewport.scroll", event || {});
+      window.visualViewport.addEventListener("resize", viewportEventHandlers.visualViewportResize);
+      window.visualViewport.addEventListener("scroll", viewportEventHandlers.visualViewportScroll);
+    }
+
+    const viewportObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        const timestamp = now();
+        mutation.addedNodes.forEach((node) => {
+          const info = describeAddedNode(node);
+          if (!info) return;
+          const entry = {
+            at: timestamp,
+            mutationType: mutation.type,
+            added: info,
+            parent: describeElement(mutation.target),
+            coincidesWithViewportChange:
+              lastViewportChangeAt !== null && Math.abs(timestamp - lastViewportChangeAt) <= 75,
+            state: viewportState(),
+          };
+          if (info.tagName === "IFRAME") {
+            iframeTimeline.push(entry);
+          }
+          if (mutation.target === document.body || document.body.contains(mutation.target)) {
+            bodyMutationTimeline.push(entry);
+          }
+          if (info.tagName === "META" && info.selector === 'meta[name="viewport"]') {
+            viewportMetaTimeline.push({
+              at: timestamp,
+              reason: "mutation-observer",
+              changeType: "mutated",
+              exists: Boolean(getViewportMetaElement()),
+              content: getViewportMetaElement()
+                ? getViewportMetaElement().getAttribute("content")
+                : null,
+              mutationTarget: describeElement(mutation.target),
+            });
+          }
+        });
+        if (
+          mutation.type === "attributes" &&
+          mutation.target &&
+          mutation.target.tagName === "META" &&
+          mutation.target.getAttribute("name") === "viewport"
+        ) {
+          viewportMetaTimeline.push({
+            at: timestamp,
+            reason: "attribute-mutation",
+            changeType: "modified",
+            exists: Boolean(getViewportMetaElement()),
+            content: getViewportMetaElement()
+              ? getViewportMetaElement().getAttribute("content")
+              : null,
+            mutationTarget: describeElement(mutation.target),
+          });
+        }
+      });
+    });
+    viewportObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["content"],
+    });
+    observers.push(viewportObserver);
+
+    const initialViewportMeta = getViewportMetaElement();
+    viewportMetaTimeline.push({
+      at: now(),
+      reason: "initial observation",
+      changeType: initialViewportMeta ? "observed" : "absent",
+      exists: Boolean(initialViewportMeta),
+      content: initialViewportMeta ? initialViewportMeta.getAttribute("content") : null,
+    });
+
+    if (document.readyState !== "loading") {
+      viewportEvents.push({
+        at: now(),
+        event: "DOMContentLoaded",
+        synthetic: true,
+        reason: "script-start-after-domcontentloaded",
+        state: viewportState(),
+      });
+    }
+    if (document.readyState === "complete") {
+      viewportEvents.push({
+        at: now(),
+        event: "load",
+        synthetic: true,
+        reason: "script-start-after-load",
+        state: viewportState(),
+      });
+    }
+
+    viewportDiagnosticsCleanup = () => {
+      window.removeEventListener("resize", viewportEventHandlers.windowResize);
+      window.removeEventListener("orientationchange", viewportEventHandlers.orientationchange);
+      window.removeEventListener("pageshow", viewportEventHandlers.pageshow);
+      document.removeEventListener("DOMContentLoaded", viewportEventHandlers.domContentLoaded);
+      window.removeEventListener("load", viewportEventHandlers.load);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener(
+          "resize",
+          viewportEventHandlers.visualViewportResize
+        );
+        window.visualViewport.removeEventListener(
+          "scroll",
+          viewportEventHandlers.visualViewportScroll
+        );
+      }
+    };
   };
   const continueToWebsite = () => {
     clearDiagnostics();
@@ -459,5 +876,6 @@
   observers.push(discoveryObserver);
 
   snapshot("diagnostic script started", { force: true });
+  startViewportDiagnostics();
   waitForLoader();
 })();
