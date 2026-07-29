@@ -158,6 +158,13 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 #gfLoader .gf-backdrop-image{transform:none;transition:opacity 180ms ease}
 #gfLoader.gf-galaxy-loaded .gf-backdrop-image{transform:none}
 }
+@media (max-width:640px){
+#gfLoader.gf-loader-standard-page .gf-brand,#gfLoader.gf-loader-embed-page .gf-brand{width:262px}
+#gfLoader.gf-loader-standard-page .gf-logo,#gfLoader.gf-loader-embed-page .gf-logo{width:218px}
+#gfLoader.gf-loader-standard-page .gf-logo img,#gfLoader.gf-loader-embed-page .gf-logo img{width:218px;height:auto}
+#gfLoader.gf-loader-standard-page .gf-loading,#gfLoader.gf-loader-embed-page .gf-loading{width:262px;max-width:none}
+#gfLoader.gf-loader-standard-page .gf-progress,#gfLoader.gf-loader-embed-page .gf-progress{width:284px}
+}
 `;
 
     const ensureStyleTag = () => {
