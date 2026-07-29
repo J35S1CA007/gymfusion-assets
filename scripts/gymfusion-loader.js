@@ -98,14 +98,23 @@
       );
     };
 
+    const isDiagnosticsPanelTarget = (target) => {
+      const element = target instanceof Element ? target : null;
+      return Boolean(element && element.closest("#gfMobileLoaderDiagnostics"));
+    };
+
     const preventScrollEvent = (event) => {
+      if (isDiagnosticsPanelTarget(event.target)) {
+        return;
+      }
+
       if (event.cancelable) {
         event.preventDefault();
       }
     };
 
     const preventScrollKeys = (event) => {
-      if (event.defaultPrevented || isEditableTarget(event.target)) {
+      if (event.defaultPrevented || isEditableTarget(event.target) || isDiagnosticsPanelTarget(event.target)) {
         return;
       }
 
@@ -250,7 +259,7 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 .gf-cursor-canvas{position:fixed;inset:0;z-index:2147483647;width:100vw;height:100vh;pointer-events:none;mix-blend-mode:screen;opacity:0.95}
 @keyframes gfSpin{to{transform:rotate(360deg)}}
 @keyframes gfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media (max-width:640px){#gfLoader{grid-template-rows:164px 310px 73px;align-content:start}#gfLoader.gf-galaxy-loaded .gf-backdrop{opacity:0}#gfLoader .gf-backdrop-image{background-size:auto,100% auto;background-position:center,center top;transform:none}#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86;transform:none}.gf-brand{width:262px}#gfLoader .gf-emblem{width:64px!important;height:64px!important;margin:48px auto -30px!important}.gf-logo{width:218px}.gf-logo img{width:218px;height:auto}#gfLoader.gf-loader-standard-page .gf-wheel,#gfLoader.gf-loader-embed-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 0 18px rgba(143,57,255,0.22)}#gfLoader.gf-loader-standard-page .gf-progress,#gfLoader.gf-loader-embed-page .gf-progress{width:284px;height:7px;opacity:0.82}#gfLoader.gf-loader-standard-page .gf-progress-fill,#gfLoader.gf-loader-embed-page .gf-progress-fill{background:linear-gradient(90deg,#050407 0%,#2a0f43 16%,#a230ff 58%,#c9a6ff 100%);box-shadow:0 0 18px rgba(143,57,255,0.48)}#gfLoader.gf-loader-standard-page .gf-loading,#gfLoader.gf-loader-embed-page .gf-loading{width:262px;max-width:none;text-shadow:0 8px 20px rgba(0,0,0,0.72)}.gf-wheel{width:68px;height:68px}.gf-loading{font-size:17px;letter-spacing:0.07em}.gf-loading-word{margin-left:0.18em}.gf-center{align-self:start;justify-content:flex-start;padding-top:84px;transform:none}}@media (prefers-reduced-motion: reduce){
+@media (max-width:640px){#gfLoader{grid-template-rows:164px 310px 73px;align-content:start}#gfLoader.gf-galaxy-loaded .gf-backdrop{opacity:0}#gfLoader .gf-backdrop-image{background-size:auto,100% auto;background-position:center,center top;transform:none}#gfLoader.gf-galaxy-loaded .gf-backdrop-image{opacity:.86;transform:none}.gf-brand{width:262px}#gfLoader .gf-emblem{width:64px!important;height:64px!important;margin:48px auto -30px!important}.gf-logo{width:218px}.gf-logo img{width:218px;height:auto}#gfLoader.gf-loader-standard-page .gf-wheel,#gfLoader.gf-loader-embed-page .gf-wheel{width:62px;height:62px;border-width:3px;animation-duration:1.65s;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 0 18px rgba(143,57,255,0.22)}#gfLoader.gf-loader-standard-page .gf-progress,#gfLoader.gf-loader-embed-page .gf-progress{width:284px;height:7px;opacity:0.82}#gfLoader.gf-loader-standard-page .gf-progress-fill,#gfLoader.gf-loader-embed-page .gf-progress-fill{background:linear-gradient(90deg,#7000F7 0%,#9B00FF 15%,#C500D6 30%,#ED007A 50%,#FF0045 68%,#FF4A1C 82%,#FF7A00 92%,#FFA000 100%);box-shadow:0 0 18px rgba(162,48,255,0.58),0 0 28px rgba(255,74,28,0.34)}#gfLoader.gf-loader-standard-page .gf-loading,#gfLoader.gf-loader-embed-page .gf-loading{width:262px;max-width:none;text-shadow:0 8px 20px rgba(0,0,0,0.72)}.gf-wheel{width:68px;height:68px}.gf-loading{font-size:17px;letter-spacing:0.07em}.gf-loading-word{margin-left:0.18em}.gf-center{align-self:start;justify-content:flex-start;padding-top:84px;transform:none}}@media (prefers-reduced-motion: reduce){
 #gfLoader .gf-backdrop-image{transform:none;transition:opacity 180ms ease}
 #gfLoader.gf-galaxy-loaded .gf-backdrop-image{transform:none}
 }
