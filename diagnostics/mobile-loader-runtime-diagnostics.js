@@ -533,8 +533,9 @@
       }
       render();
     });
-    addButton(controls, "Copy Diagnostic Report", copyReport);
+    addButton(controls, "Copy JSON", copyReport);
     addButton(controls, "Continue to Website", continueToWebsite);
+    addButton(controls, "Close diagnostics", closeDiagnostics);
     Object.keys(highlightLabels).forEach((key) => {
       addButton(controls, `Highlight ${highlightLabels[key]}`, () => highlight(componentSelectors[key]));
     });
@@ -567,7 +568,7 @@
     }, 1500);
     timers.push(timer);
   };
-  const clearDiagnostics = () => {
+  const stopDiagnostics = () => {
     if (viewportDiagnosticsCleanup) {
       viewportDiagnosticsCleanup();
       viewportDiagnosticsCleanup = null;
@@ -575,6 +576,9 @@
     observers.splice(0).forEach((observer) => observer.disconnect());
     timers.splice(0).forEach((timer) => window.clearTimeout(timer));
     document.getElementById("gf-mobile-loader-diagnostic-style")?.remove();
+  };
+  const closeDiagnostics = () => {
+    stopDiagnostics();
     panel?.remove();
     panel = null;
     output = null;
@@ -859,7 +863,7 @@
     };
   };
   const continueToWebsite = () => {
-    clearDiagnostics();
+    stopDiagnostics();
     if (loader && originalLoaderRemove) {
       loader.remove = originalLoaderRemove;
       originalLoaderRemove = null;
