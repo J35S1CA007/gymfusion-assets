@@ -39,6 +39,31 @@ const sample = (page) =>
 
 const isDismissed = (state) => state.hidden || !state.connected;
 
+const sampleLayout = (page) =>
+  page.evaluate(() => {
+    const background = document.querySelector(".gf-background-canvas").getBoundingClientRect();
+    const brand = document.querySelector(".gf-brand").getBoundingClientRect();
+    const center = document.querySelector(".gf-center").getBoundingClientRect();
+    const progress = document.querySelector(".gf-progress").getBoundingClientRect();
+
+    return {
+      brandTopInset: brand.top - background.top,
+      brandHorizontalCenterDelta:
+        brand.left + brand.width / 2 - (background.left + background.width / 2),
+      centerHorizontalCenterDelta:
+        center.left + center.width / 2 - (background.left + background.width / 2),
+      centerVerticalCenterDelta:
+        center.top + center.height / 2 - (background.top + background.height / 2),
+      progressHorizontalCenterDelta:
+        progress.left + progress.width / 2 - (background.left + background.width / 2),
+      progressBottomInset: background.bottom - progress.bottom,
+      progressInsideComposition: document
+        .querySelector(".gf-composition")
+        .contains(document.querySelector(".gf-progress")),
+      loadingWord: document.getElementById("gfLoadingText").textContent,
+    };
+  });
+
 async function runScenario(browser, embedHtmls, pageMarkup = "") {
   const page = await browser.newPage({ viewport: { width: 430, height: 735 } });
   await page.route("http://runtime.test/**", (route) => {
@@ -73,6 +98,35 @@ async function runScenario(browser, embedHtmls, pageMarkup = "") {
       controlledEmbed("controlled-first", 1000),
       controlledEmbed("controlled-second", 4000),
     ]);
+    await controlled.waitForSelector("#gfLoader.gf-galaxy-loaded");
+    const layout = await sampleLayout(controlled);
+    assert.ok(
+      Math.abs(layout.brandHorizontalCenterDelta) <= 1,
+      "the brand must be horizontally centered within the background"
+    );
+    assert.equal(layout.brandTopInset, 40, "the mobile brand must sit in the top area");
+    assert.ok(
+      Math.abs(layout.centerHorizontalCenterDelta) <= 1,
+      "the spinner and loading text must be horizontally centered within the background"
+    );
+    assert.ok(
+      Math.abs(layout.centerVerticalCenterDelta) <= 1,
+      "the spinner and loading text must be vertically centered within the background"
+    );
+    assert.ok(
+      Math.abs(layout.progressHorizontalCenterDelta) <= 1,
+      "the progress bar must be horizontally aligned with the background"
+    );
+    assert.ok(
+      Math.abs(layout.progressBottomInset - 24) <= 1,
+      "the mobile progress bar must sit 24px above the background's bottom edge"
+    );
+    assert.equal(
+      layout.progressInsideComposition,
+      false,
+      "the progress bar must remain independent from the centered composition"
+    );
+    assert.equal(layout.loadingWord, "POTENTIAL", "embed pages must use the standard word sequence");
     await controlled.waitForTimeout(3800);
     assert.deepEqual(
       await sample(controlled),
