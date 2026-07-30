@@ -226,13 +226,13 @@
           right: body.style.right,
           width: body.style.width,
           overflow: body.style.overflow,
-          overscrollBehavior: body.style.overscrollBehavior,
-          touchAction: body.style.touchAction,
+          "overscroll-behavior": body.style.overscrollBehavior,
+          "touch-action": body.style.touchAction,
         },
         root: {
           overflow: root.style.overflow,
-          overscrollBehavior: root.style.overscrollBehavior,
-          touchAction: root.style.touchAction,
+          "overscroll-behavior": root.style.overscrollBehavior,
+          "touch-action": root.style.touchAction,
         },
       };
 
