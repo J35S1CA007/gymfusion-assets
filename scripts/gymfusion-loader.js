@@ -43,11 +43,11 @@
         ],
       },
       embedPages: {
-        "/": { expectedEmbeds: 4 },
-        "/home": { expectedEmbeds: 4 },
-        "/eoi": { expectedEmbeds: 1 },
-        "/rfm-screening-hub": { expectedEmbeds: 2 },
-        "/health-screening": { expectedEmbeds: 2 },
+        "/": {},
+        "/home": {},
+        "/eoi": {},
+        "/rfm-screening-hub": {},
+        "/health-screening": {},
       },
       embedPageRoots: ["/home", "/eoi", "/rfm-screening-hub", "/health-screening"],
     };
@@ -62,8 +62,8 @@
 
     const READY_PROTOCOL = {
       type: "GYMFUSION_READY",
+      requestType: "GYMFUSION_READY_REQUEST",
       version: 1,
-      iframeFallbackDelayMs: 800,
     };
 
     const BACKGROUND_FADE_MS = 620;
@@ -479,7 +479,7 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 
       for (const root of LOADER_RULES.embedPageRoots) {
         if (isPathAtOrBelow(path, root)) {
-          return { path, root, expectedEmbeds: 1 };
+          return { path, root };
         }
       }
 
@@ -811,26 +811,23 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       };
     };
 
-    const waitForControlledEmbeds = (expectedCount) => {
-      const iframes = Array.from(document.querySelectorAll("iframe"));
+    const waitForControlledEmbeds = () => {
       const timeoutMs = LOADER_RULES.embed.embedReadyTimeoutMs;
 
-      if (!iframes.length) {
-        return Promise.resolve();
-      }
-
       return new Promise((resolve) => {
-        const seen = new WeakSet();
-        const seenEmbedIds = new Set();
+        const tracked = new Map();
         let readyCount = 0;
+        let loadedCount = 0;
+        let domSettled = document.readyState === "complete";
         let finished = false;
-        const fallbackTimers = new Set();
+        let settleTimerId = 0;
 
         const cleanup = () => {
           window.removeEventListener("message", onMessage);
+          window.removeEventListener("load", scheduleDomSettled);
           window.clearTimeout(timeoutId);
-          fallbackTimers.forEach((timerId) => window.clearTimeout(timerId));
-          fallbackTimers.clear();
+          window.clearTimeout(settleTimerId);
+          iframeObserver.disconnect();
         };
 
         const done = () => {
@@ -840,34 +837,100 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
           resolve();
         };
 
+        const maybeDone = () => {
+          if (domSettled && tracked.size === readyCount) {
+            done();
+          }
+        };
+
         const markReady = (iframe, embedId, source) => {
-          if (!iframe || seen.has(iframe)) {
+          const state = iframe ? tracked.get(iframe) : null;
+          if (!state || state.ready) {
             return false;
           }
 
           const normalizedEmbedId = normalizeEmbedId(embedId || getIframeEmbedId(iframe));
-          if (normalizedEmbedId && seenEmbedIds.has(normalizedEmbedId)) {
-            return false;
-          }
-
-          seen.add(iframe);
-          if (normalizedEmbedId) {
-            seenEmbedIds.add(normalizedEmbedId);
-          }
-
+          state.ready = true;
+          state.embedId = normalizedEmbedId;
           readyCount += 1;
           logReadyProtocol("info", "READY accepted", {
             source,
             readyCount,
-            expectedCount,
+            expectedCount: tracked.size,
             embedId: normalizedEmbedId || null,
           });
+          maybeDone();
+          return true;
+        };
 
-          if (readyCount >= expectedCount) {
-            done();
+        const requestReady = (iframe) => {
+          try {
+            iframe.contentWindow?.postMessage(
+              { type: READY_PROTOCOL.requestType, version: READY_PROTOCOL.version },
+              "*"
+            );
+          } catch {
+            // Cross-origin frames can still emit READY or reach the fail-open timeout.
+          }
+        };
+
+        const markLoaded = (iframe, source) => {
+          const state = iframe ? tracked.get(iframe) : null;
+          if (!state || state.loaded) {
+            return;
           }
 
-          return true;
+          state.loaded = true;
+          loadedCount += 1;
+          logReadyProtocol("info", "iframe loaded; waiting for READY", {
+            source,
+            loadedCount,
+            expectedCount: tracked.size,
+            embedId: getIframeEmbedId(iframe) || null,
+          });
+          requestReady(iframe);
+        };
+
+        const trackIframe = (iframe) => {
+          if (!iframe || tracked.has(iframe)) {
+            return;
+          }
+
+          tracked.set(iframe, { loaded: false, ready: false, embedId: null });
+          iframe.addEventListener("load", () => markLoaded(iframe, "load"), { once: true });
+
+          try {
+            if (iframe.contentDocument?.readyState === "complete") {
+              markLoaded(iframe, "already-complete");
+            } else {
+              requestReady(iframe);
+            }
+          } catch {
+            requestReady(iframe);
+          }
+        };
+
+        const trackIframesIn = (node) => {
+          if (!(node instanceof Element)) {
+            return;
+          }
+
+          if (node.matches("iframe")) {
+            trackIframe(node);
+          }
+          node.querySelectorAll?.("iframe").forEach(trackIframe);
+        };
+
+        const iframeObserver = new MutationObserver((records) => {
+          records.forEach((record) => record.addedNodes.forEach(trackIframesIn));
+        });
+
+        const scheduleDomSettled = () => {
+          window.clearTimeout(settleTimerId);
+          settleTimerId = window.setTimeout(() => {
+            domSettled = true;
+            maybeDone();
+          }, 250);
         };
 
         const onMessage = (event) => {
@@ -876,14 +939,16 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
             return;
           }
 
-          const iframe = iframes.find((node) => node.contentWindow === event.source);
+          const iframe = Array.from(tracked.keys()).find((node) => node.contentWindow === event.source);
           if (iframe) {
             markReady(iframe, payload.embedId, "message");
             return;
           }
 
           if (payload.embedId) {
-            const embeddedIframe = iframes.find((node) => getIframeEmbedId(node) === payload.embedId);
+            const embeddedIframe = Array.from(tracked.keys()).find(
+              (node) => getIframeEmbedId(node) === payload.embedId
+            );
             if (embeddedIframe) {
               markReady(embeddedIframe, payload.embedId, "message/embedId");
               return;
@@ -895,36 +960,25 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
           });
         };
 
-        const timeoutId = window.setTimeout(done, timeoutMs);
+        const timeoutId = window.setTimeout(() => {
+          logReadyProtocol("warn", "READY wait timed out; failing open", {
+            readyCount,
+            loadedCount,
+            expectedCount: tracked.size,
+          });
+          done();
+        }, timeoutMs);
 
         window.addEventListener("message", onMessage);
-        iframes.forEach((iframe) => {
-          iframe.addEventListener(
-            "load",
-            () => {
-              const loadTimerId = window.setTimeout(() => {
-                fallbackTimers.delete(loadTimerId);
-                markReady(iframe, getIframeEmbedId(iframe), "load");
-              }, READY_PROTOCOL.iframeFallbackDelayMs);
+        iframeObserver.observe(document.documentElement, { childList: true, subtree: true });
+        document.querySelectorAll("iframe").forEach(trackIframe);
 
-              fallbackTimers.add(loadTimerId);
-            },
-            { once: true }
-          );
-
-          try {
-            if (iframe.contentDocument?.readyState === "complete") {
-              const syncTimerId = window.setTimeout(() => {
-                fallbackTimers.delete(syncTimerId);
-                markReady(iframe, getIframeEmbedId(iframe), "already-complete");
-              }, 0);
-
-              fallbackTimers.add(syncTimerId);
-            }
-          } catch {
-            // Cross-origin or inaccessible iframe. Fall back to the load/timeout path.
-          }
-        });
+        if (document.readyState === "complete") {
+          scheduleDomSettled();
+        } else {
+          domSettled = false;
+          window.addEventListener("load", scheduleDomSettled, { once: true });
+        }
       });
     };
 
@@ -1029,8 +1083,6 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 
       const isEmbedPage = isV2Shell ? shellMode === "embed" : classifiedIsEmbedPage;
       const loaderConfig = isEmbedPage ? LOADER_RULES.embed : LOADER_RULES.standard;
-      const expectedEmbeds =
-        pageInfo?.expectedEmbeds || Math.max(1, document.querySelectorAll("iframe").length);
       const messages = loaderConfig.messages;
 
       if (
@@ -1047,7 +1099,7 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       PAGE_STATE.startTime = performance.now();
 
       const readyPromise = waitForDomReady();
-      const embedPromise = isEmbedPage ? waitForControlledEmbeds(expectedEmbeds) : Promise.resolve();
+      const embedPromise = isEmbedPage ? waitForControlledEmbeds() : Promise.resolve();
       const fontPromise =
         document.fonts && document.fonts.ready
           ? Promise.race([document.fonts.ready.catch(() => {}), sleep(1200)])
