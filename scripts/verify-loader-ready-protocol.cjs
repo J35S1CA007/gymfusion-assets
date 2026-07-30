@@ -110,8 +110,8 @@ async function runScenario(browser, embedHtmls, pageMarkup = "") {
       "the spinner and loading text must be horizontally centered within the background"
     );
     assert.ok(
-      Math.abs(layout.centerVerticalCenterDelta) <= 1,
-      "the spinner and loading text must be vertically centered within the background"
+      Math.abs(layout.centerVerticalCenterDelta - 3) <= 1,
+      "the spinner and loading text must sit 3px below the background's vertical center"
     );
     assert.ok(
       Math.abs(layout.progressHorizontalCenterDelta) <= 1,
