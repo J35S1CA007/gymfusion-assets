@@ -37,7 +37,9 @@ const sample = (page) =>
     };
   });
 
-async function runScenario(browser, embedHtmls) {
+const isDismissed = (state) => state.hidden || !state.connected;
+
+async function runScenario(browser, embedHtmls, pageMarkup = "") {
   const page = await browser.newPage({ viewport: { width: 430, height: 735 } });
   await page.route("http://runtime.test/**", (route) => {
     if (route.request().url().endsWith("/scripts/gymfusion-loader.js")) {
@@ -54,6 +56,7 @@ async function runScenario(browser, embedHtmls) {
     <!doctype html>
     <html>
       <body>
+        ${pageMarkup}
         ${iframes}
         <script src="http://runtime.test/scripts/gymfusion-loader.js"></script>
       </body>
@@ -76,8 +79,8 @@ async function runScenario(browser, embedHtmls) {
       { connected: true, hidden: false },
       "the first READY must not dismiss while another controlled embed is pending"
     );
-    await controlled.waitForTimeout(900);
-    assert.equal((await sample(controlled)).hidden, true, "valid READY should allow dismissal");
+    await controlled.waitForTimeout(1700);
+    assert.equal(isDismissed(await sample(controlled)), true, "valid READY should allow dismissal");
     await controlled.close();
 
     const legacy = await runScenario(browser, ["<p>Legacy embed</p>"]);
@@ -87,11 +90,42 @@ async function runScenario(browser, embedHtmls) {
       { connected: true, hidden: false },
       "legacy iframe load must wait for the readiness fail-open timeout"
     );
-    await legacy.waitForTimeout(2100);
-    assert.equal((await sample(legacy)).hidden, true, "legacy embed should fail open after timeout");
+    await legacy.waitForTimeout(3000);
+    assert.equal(isDismissed(await sample(legacy)), true, "legacy embed should fail open after timeout");
     await legacy.waitForTimeout(1100);
     assert.equal((await sample(legacy)).connected, false, "loader should complete removal");
     await legacy.close();
+
+    const lateMenuEmbed = JSON.stringify(controlledEmbed("late-menu-button", 0)).replaceAll(
+      "</script>",
+      "<\\/script>"
+    );
+    const settling = await runScenario(
+      browser,
+      [controlledEmbed("settling-embed", 1000)],
+      `<main class="wixui-page" style="width:300px;height:1200px"></main>
+       <script>
+         setTimeout(() => {
+           document.querySelector('.wixui-page').style.width = '410px';
+           const iframe = document.createElement('iframe');
+           iframe.srcdoc = ${lateMenuEmbed};
+           document.body.append(iframe);
+         }, 4200);
+       <\/script>`
+    );
+    await settling.waitForTimeout(4100);
+    assert.deepEqual(
+      await sample(settling),
+      { connected: true, hidden: false },
+      "loader must remain visible while the Wix page width is unsettled"
+    );
+    await settling.waitForTimeout(1900);
+    assert.equal(
+      isDismissed(await sample(settling)),
+      true,
+      "loader should dismiss after the settled Wix width remains quiet"
+    );
+    await settling.close();
 
     console.log("Loader READY protocol verification passed.");
   } finally {

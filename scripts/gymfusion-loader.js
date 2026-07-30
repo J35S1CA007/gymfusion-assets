@@ -42,6 +42,11 @@
           "FINALISING EXPERIENCE",
         ],
       },
+      wixLayout: {
+        quietMs: 900,
+        timeoutMs: 6500,
+        widthTolerancePx: 24,
+      },
       embedPages: {
         "/": {},
         "/home": {},
@@ -896,6 +901,8 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
             return;
           }
 
+          domSettled = false;
+          scheduleDomSettled();
           tracked.set(iframe, { loaded: false, ready: false, embedId: null });
           iframe.addEventListener("load", () => markLoaded(iframe, "load"), { once: true });
 
@@ -974,11 +981,103 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
         document.querySelectorAll("iframe").forEach(trackIframe);
 
         if (document.readyState === "complete") {
+          domSettled = false;
           scheduleDomSettled();
         } else {
           domSettled = false;
           window.addEventListener("load", scheduleDomSettled, { once: true });
         }
+      });
+    };
+
+    const waitForWixLayoutSettled = () => {
+      const initialViewportWidth = window.visualViewport?.width || window.innerWidth;
+      if (initialViewportWidth > CONFIG.mobileBreakpointPx) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve) => {
+        const { quietMs, timeoutMs, widthTolerancePx } = LOADER_RULES.wixLayout;
+        const observed = new WeakSet();
+        let finished = false;
+        let quietTimerId = 0;
+
+        const resizeObserver = typeof ResizeObserver === "function"
+          ? new ResizeObserver(() => scheduleCheck())
+          : null;
+
+        const observeLayoutTargets = () => {
+          if (!resizeObserver) return false;
+          let addedTarget = false;
+          [
+            document.documentElement,
+            document.body,
+            document.getElementById("SITE_CONTAINER"),
+            document.querySelector(".wixui-page"),
+            ...document.querySelectorAll("iframe"),
+          ].forEach((node) => {
+            if (node && !observed.has(node)) {
+              observed.add(node);
+              resizeObserver.observe(node);
+              addedTarget = true;
+            }
+          });
+          return addedTarget;
+        };
+
+        const widthsAreCoherent = () => {
+          const viewportWidth = window.visualViewport?.width || window.innerWidth;
+          const clientWidth = document.documentElement.clientWidth;
+          if (!viewportWidth || !clientWidth || Math.abs(viewportWidth - clientWidth) > 2) {
+            return false;
+          }
+
+          const wixPage = document.querySelector(".wixui-page");
+          if (!wixPage) {
+            return true;
+          }
+
+          const pageWidth = wixPage.getBoundingClientRect().width;
+          return pageWidth > 0 && Math.abs(viewportWidth - pageWidth) <= widthTolerancePx;
+        };
+
+        const cleanup = () => {
+          window.clearTimeout(quietTimerId);
+          window.clearTimeout(timeoutId);
+          window.removeEventListener("resize", scheduleCheck);
+          window.visualViewport?.removeEventListener("resize", scheduleCheck);
+          resizeObserver?.disconnect();
+          mutationObserver.disconnect();
+        };
+
+        const done = () => {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          resolve();
+        };
+
+        function scheduleCheck() {
+          if (finished) return;
+          observeLayoutTargets();
+          window.clearTimeout(quietTimerId);
+          if (widthsAreCoherent()) {
+            quietTimerId = window.setTimeout(done, quietMs);
+          }
+        }
+
+        const mutationObserver = new MutationObserver(() => {
+          if (observeLayoutTargets()) {
+            scheduleCheck();
+          }
+        });
+        const timeoutId = window.setTimeout(done, timeoutMs);
+
+        window.addEventListener("resize", scheduleCheck, { passive: true });
+        window.visualViewport?.addEventListener("resize", scheduleCheck, { passive: true });
+        mutationObserver.observe(document.documentElement, { childList: true, subtree: true });
+        observeLayoutTargets();
+        scheduleCheck();
       });
     };
 
@@ -1099,7 +1198,10 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       PAGE_STATE.startTime = performance.now();
 
       const readyPromise = waitForDomReady();
-      const embedPromise = isEmbedPage ? waitForControlledEmbeds() : Promise.resolve();
+      const settledLayoutPromise = readyPromise.then(waitForWixLayoutSettled);
+      const pageReadyPromise = isEmbedPage
+        ? settledLayoutPromise.then(waitForControlledEmbeds)
+        : settledLayoutPromise;
       const fontPromise =
         document.fonts && document.fonts.ready
           ? Promise.race([document.fonts.ready.catch(() => {}), sleep(1200)])
@@ -1135,9 +1237,8 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
       try {
         await Promise.race([
           Promise.all([
-            readyPromise,
+            pageReadyPromise,
             fontPromise,
-            embedPromise,
             minVisiblePromise,
             boundedBackgroundVisualPromise,
           ]),
