@@ -39,6 +39,13 @@ const releaseControlledEmbed = (page, embedId) =>
     });
   }, embedId);
 
+const finishBackgroundTransition = (page) =>
+  page.evaluate(() => {
+    document.querySelector(".gf-backdrop-image")
+      ?.getAnimations()
+      .forEach((animation) => animation.finish());
+  });
+
 const sample = (page) =>
   page.evaluate(() => {
     const loader = document.getElementById("gfLoader");
@@ -130,6 +137,7 @@ async function runScenario(
       controlledEmbed("controlled-second"),
     ]);
     await controlled.waitForSelector("#gfLoader.gf-galaxy-loaded");
+    await finishBackgroundTransition(controlled);
     const layout = await sampleLayout(controlled);
     assert.ok(
       Math.abs(layout.brandHorizontalCenterDelta) <= 1,
@@ -192,10 +200,11 @@ async function runScenario(
       { width: 1440, height: 900 }
     );
     await desktop.waitForSelector("#gfLoader.gf-galaxy-loaded");
+    await finishBackgroundTransition(desktop);
     const desktopLayout = await sampleLayout(desktop);
     assert.ok(
       Math.abs(desktopLayout.brandTopInset - 30) <= 1,
-      "the desktop brand must sit 30px from the top"
+      `the desktop brand must sit 30px from the top (${desktopLayout.brandTopInset}px)`
     );
     assert.equal(desktopLayout.emblemWidth, 80, "the desktop emblem must be 80px wide");
     assert.equal(desktopLayout.emblemHeight, 80, "the desktop emblem must be 80px high");
@@ -235,6 +244,7 @@ async function runScenario(
       { hasTouch: true, isMobile: true }
     );
     await widePortraitMobile.waitForSelector("#gfLoader.gf-galaxy-loaded");
+    await finishBackgroundTransition(widePortraitMobile);
     const widePortraitLayout = await sampleLayout(widePortraitMobile);
     assert.equal(
       widePortraitLayout.logoArtworkWidth,
@@ -260,6 +270,7 @@ async function runScenario(
       { hasTouch: true, isMobile: true }
     );
     await landscapeMobile.waitForSelector("#gfLoader.gf-galaxy-loaded");
+    await finishBackgroundTransition(landscapeMobile);
     const landscapeLayout = await sampleLayout(landscapeMobile);
     assert.equal(
       landscapeLayout.logoArtworkWidth,
