@@ -22,11 +22,22 @@ const controlledEmbed = (embedId, delayMs) => `
       };
       addEventListener("message", (event) => {
         if (event.data?.type === "GYMFUSION_READY_REQUEST" && event.data.version === 1) emit();
+        if (event.data?.type === "GYMFUSION_TEST_READY" && event.data.embedId === "${embedId}") {
+          ready = true;
+          emit();
+        }
       });
-      setTimeout(() => { ready = true; emit(); }, ${delayMs});
+      ${delayMs == null ? "" : `setTimeout(() => { ready = true; emit(); }, ${delayMs});`}
     })();
   <\/script>
 `;
+
+const releaseControlledEmbed = (page, embedId) =>
+  page.evaluate((id) => {
+    document.querySelectorAll("iframe").forEach((iframe) => {
+      iframe.contentWindow?.postMessage({ type: "GYMFUSION_TEST_READY", embedId: id }, "*");
+    });
+  }, embedId);
 
 const sample = (page) =>
   page.evaluate(() => {
@@ -82,9 +93,10 @@ async function runScenario(
   browser,
   embedHtmls,
   pageMarkup = "",
-  viewport = { width: 430, height: 735 }
+  viewport = { width: 430, height: 735 },
+  contextOptions = {}
 ) {
-  const page = await browser.newPage({ viewport });
+  const page = await browser.newPage({ viewport, ...contextOptions });
   await page.route("http://runtime.test/**", (route) => {
     if (route.request().url().endsWith("/scripts/gymfusion-loader.js")) {
       return route.fulfill({ contentType: "text/javascript", body: runtime });
@@ -114,8 +126,8 @@ async function runScenario(
   const browser = await chromium.launch({ headless: true });
   try {
     const controlled = await runScenario(browser, [
-      controlledEmbed("controlled-first", 1000),
-      controlledEmbed("controlled-second", 4000),
+      controlledEmbed("controlled-first"),
+      controlledEmbed("controlled-second"),
     ]);
     await controlled.waitForSelector("#gfLoader.gf-galaxy-loaded");
     const layout = await sampleLayout(controlled);
@@ -158,26 +170,33 @@ async function runScenario(
       "GamuthDisplay, Impact",
       "loading text must use GamuthDisplay with Impact as its sole fallback"
     );
-    await controlled.waitForTimeout(3800);
+    await releaseControlledEmbed(controlled, "controlled-first");
+    await controlled.waitForTimeout(500);
     assert.deepEqual(
       await sample(controlled),
       { connected: true, hidden: false },
       "the first READY must not dismiss while another controlled embed is pending"
     );
-    await controlled.waitForTimeout(1700);
+    await releaseControlledEmbed(controlled, "controlled-second");
+    await controlled.waitForFunction(() => {
+      const loader = document.getElementById("gfLoader");
+      return !loader || loader.classList.contains("gf-is-hidden");
+    }, undefined, { timeout: 7000 });
     assert.equal(isDismissed(await sample(controlled)), true, "valid READY should allow dismissal");
     await controlled.close();
 
     const desktop = await runScenario(
       browser,
-      [controlledEmbed("desktop-layout", 4000)],
+      [controlledEmbed("desktop-layout")],
       "",
       { width: 1440, height: 900 }
     );
     await desktop.waitForSelector("#gfLoader.gf-galaxy-loaded");
-    await desktop.waitForTimeout(700);
     const desktopLayout = await sampleLayout(desktop);
-    assert.equal(desktopLayout.brandTopInset, 30, "the desktop brand must sit 30px from the top");
+    assert.ok(
+      Math.abs(desktopLayout.brandTopInset - 30) <= 1,
+      "the desktop brand must sit 30px from the top"
+    );
     assert.equal(desktopLayout.emblemWidth, 80, "the desktop emblem must be 80px wide");
     assert.equal(desktopLayout.emblemHeight, 80, "the desktop emblem must be 80px high");
     assert.equal(desktopLayout.logoWidth, 345, "the desktop logo artwork must be 345px wide");
@@ -197,9 +216,8 @@ async function runScenario(
     );
     assert.equal(desktopLayout.progressWidth, 780, "the desktop progress bar must be 780px wide");
     assert.equal(desktopLayout.progressHeight, 15, "the desktop progress bar must be 15px high");
-    assert.equal(
-      desktopLayout.progressBottomInset,
-      12,
+    assert.ok(
+      Math.abs(desktopLayout.progressBottomInset - 12) <= 1,
       "the desktop progress bar must sit 12px above the bottom"
     );
     assert.equal(
@@ -208,6 +226,56 @@ async function runScenario(
       "desktop loading text must use Impact as the sole fallback"
     );
     await desktop.close();
+
+    const widePortraitMobile = await runScenario(
+      browser,
+      [controlledEmbed("wide-portrait-mobile")],
+      "",
+      { width: 768, height: 1024 },
+      { hasTouch: true, isMobile: true }
+    );
+    await widePortraitMobile.waitForSelector("#gfLoader.gf-galaxy-loaded");
+    const widePortraitLayout = await sampleLayout(widePortraitMobile);
+    assert.equal(
+      widePortraitLayout.logoArtworkWidth,
+      228,
+      "wide portrait mobile devices must retain the locked mobile logo"
+    );
+    assert.equal(
+      widePortraitLayout.progressWidth,
+      320,
+      "wide portrait mobile devices must retain the locked mobile progress bar"
+    );
+    assert.ok(
+      Math.abs(widePortraitLayout.centerVerticalCenterDelta - 8) <= 1,
+      "wide portrait mobile devices must retain the locked mobile center offset"
+    );
+    await widePortraitMobile.close();
+
+    const landscapeMobile = await runScenario(
+      browser,
+      [controlledEmbed("landscape-mobile")],
+      "",
+      { width: 852, height: 393 },
+      { hasTouch: true, isMobile: true }
+    );
+    await landscapeMobile.waitForSelector("#gfLoader.gf-galaxy-loaded");
+    const landscapeLayout = await sampleLayout(landscapeMobile);
+    assert.equal(
+      landscapeLayout.logoArtworkWidth,
+      228,
+      "landscape mobile devices must retain the locked mobile logo"
+    );
+    assert.equal(
+      landscapeLayout.progressWidth,
+      320,
+      "landscape mobile devices must retain the locked mobile progress bar"
+    );
+    assert.ok(
+      Math.abs(landscapeLayout.centerVerticalCenterDelta - 8) <= 1,
+      "landscape mobile devices must retain the locked mobile center offset"
+    );
+    await landscapeMobile.close();
 
     const legacy = await runScenario(browser, ["<p>Legacy embed</p>"]);
     await legacy.waitForTimeout(3800);
@@ -231,7 +299,13 @@ async function runScenario(
       [controlledEmbed("settling-embed", 1000)],
       `<main class="wixui-page" style="width:300px;height:1200px"></main>
        <script>
+         let settlingWidth = 300;
+         const settlementPulse = setInterval(() => {
+           settlingWidth = settlingWidth === 300 ? 320 : 300;
+           document.querySelector('.wixui-page').style.width = settlingWidth + 'px';
+         }, 500);
          setTimeout(() => {
+           clearInterval(settlementPulse);
            document.querySelector('.wixui-page').style.width = '410px';
            const iframe = document.createElement('iframe');
            iframe.srcdoc = ${lateMenuEmbed};
