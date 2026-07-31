@@ -43,6 +43,7 @@ const sampleLayout = (page) =>
   page.evaluate(() => {
     const background = document.querySelector(".gf-background-canvas").getBoundingClientRect();
     const brand = document.querySelector(".gf-brand").getBoundingClientRect();
+    const logoArtwork = document.querySelector(".gf-logo-art").getBoundingClientRect();
     const center = document.querySelector(".gf-center").getBoundingClientRect();
     const progress = document.querySelector(".gf-progress").getBoundingClientRect();
 
@@ -50,17 +51,22 @@ const sampleLayout = (page) =>
       brandTopInset: brand.top - background.top,
       brandHorizontalCenterDelta:
         brand.left + brand.width / 2 - (background.left + background.width / 2),
+      logoArtworkWidth: logoArtwork.width,
+      logoArtworkHeight: logoArtwork.height,
       centerHorizontalCenterDelta:
         center.left + center.width / 2 - (background.left + background.width / 2),
       centerVerticalCenterDelta:
         center.top + center.height / 2 - (background.top + background.height / 2),
       progressHorizontalCenterDelta:
         progress.left + progress.width / 2 - (background.left + background.width / 2),
+      progressWidth: progress.width,
+      progressHeight: progress.height,
       progressBottomInset: background.bottom - progress.bottom,
       progressInsideComposition: document
         .querySelector(".gf-composition")
         .contains(document.querySelector(".gf-progress")),
       loadingWord: document.getElementById("gfLoadingText").textContent,
+      loadingFontFamily: getComputedStyle(document.querySelector(".gf-loading")).fontFamily,
     };
   });
 
@@ -105,18 +111,25 @@ async function runScenario(browser, embedHtmls, pageMarkup = "") {
       "the brand must be horizontally centered within the background"
     );
     assert.equal(layout.brandTopInset, 40, "the mobile brand must sit in the top area");
+    assert.equal(layout.logoArtworkWidth, 228, "the mobile logo artwork must be 228px wide");
+    assert.ok(
+      Math.abs(layout.logoArtworkHeight - 69.55) <= 0.1,
+      "the mobile logo artwork crop must scale proportionally"
+    );
     assert.ok(
       Math.abs(layout.centerHorizontalCenterDelta) <= 1,
       "the spinner and loading text must be horizontally centered within the background"
     );
     assert.ok(
-      Math.abs(layout.centerVerticalCenterDelta - 3) <= 1,
-      "the spinner and loading text must sit 3px below the background's vertical center"
+      Math.abs(layout.centerVerticalCenterDelta - 8) <= 1,
+      "the spinner and loading text must sit 8px below the background's vertical center"
     );
     assert.ok(
       Math.abs(layout.progressHorizontalCenterDelta) <= 1,
-      "the progress bar must be horizontally aligned with the background"
+      `the progress bar must be horizontally aligned with the background (${layout.progressHorizontalCenterDelta}px)`
     );
+    assert.equal(layout.progressWidth, 320, "the mobile progress bar must be 320px wide");
+    assert.equal(layout.progressHeight, 9, "the mobile progress bar must be 9px high");
     assert.ok(
       Math.abs(layout.progressBottomInset - 24) <= 1,
       "the mobile progress bar must sit 24px above the background's bottom edge"
@@ -127,6 +140,11 @@ async function runScenario(browser, embedHtmls, pageMarkup = "") {
       "the progress bar must remain independent from the centered composition"
     );
     assert.equal(layout.loadingWord, "POTENTIAL", "embed pages must use the standard word sequence");
+    assert.equal(
+      layout.loadingFontFamily,
+      "GamuthDisplay, Impact",
+      "loading text must use GamuthDisplay with Impact as its sole fallback"
+    );
     await controlled.waitForTimeout(3800);
     assert.deepEqual(
       await sample(controlled),
