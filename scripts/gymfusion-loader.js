@@ -344,6 +344,15 @@ background-size:220px 220px,260px 260px,300px 300px,320px 320px,360px 360px,240p
 .gf-cursor-canvas{position:fixed;inset:0;z-index:2147483647;width:100vw;height:100vh;pointer-events:none;mix-blend-mode:screen;opacity:0.95}
 @keyframes gfSpin{to{transform:rotate(360deg)}}
 @keyframes gfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@media (min-width:641px){
+#gfLoader .gf-bottom{bottom:12px}
+#gfLoader .gf-brand{top:30px;padding-top:0}
+#gfLoader .gf-emblem{width:80px;height:80px;margin:0 auto -38px}
+#gfLoader .gf-logo{width:345px}
+#gfLoader .gf-center{top:calc(50% + 10px)}
+#gfLoader .gf-wheel{width:86px;height:86px}
+#gfLoader .gf-progress{height:15px}
+}
 @media (max-width:640px){
 #gfLoader{display:block;min-height:100dvh}
 #gfLoader .gf-backdrop,#gfLoader .gf-backdrop-image{top:0;right:auto;bottom:auto;left:50%;width:var(--gf-entry-width);height:var(--gf-entry-height);transform:translateX(-50%);transform-origin:center top}

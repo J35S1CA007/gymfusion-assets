@@ -43,14 +43,20 @@ const sampleLayout = (page) =>
   page.evaluate(() => {
     const background = document.querySelector(".gf-background-canvas").getBoundingClientRect();
     const brand = document.querySelector(".gf-brand").getBoundingClientRect();
+    const emblem = document.querySelector(".gf-emblem").getBoundingClientRect();
+    const logo = document.querySelector(".gf-logo").getBoundingClientRect();
     const logoArtwork = document.querySelector(".gf-logo-art").getBoundingClientRect();
     const center = document.querySelector(".gf-center").getBoundingClientRect();
+    const wheel = document.querySelector(".gf-wheel");
     const progress = document.querySelector(".gf-progress").getBoundingClientRect();
 
     return {
       brandTopInset: brand.top - background.top,
       brandHorizontalCenterDelta:
         brand.left + brand.width / 2 - (background.left + background.width / 2),
+      emblemWidth: emblem.width,
+      emblemHeight: emblem.height,
+      logoWidth: logo.width,
       logoArtworkWidth: logoArtwork.width,
       logoArtworkHeight: logoArtwork.height,
       centerHorizontalCenterDelta:
@@ -65,13 +71,20 @@ const sampleLayout = (page) =>
       progressInsideComposition: document
         .querySelector(".gf-composition")
         .contains(document.querySelector(".gf-progress")),
+      wheelComputedWidth: getComputedStyle(wheel).width,
+      wheelComputedHeight: getComputedStyle(wheel).height,
       loadingWord: document.getElementById("gfLoadingText").textContent,
       loadingFontFamily: getComputedStyle(document.querySelector(".gf-loading")).fontFamily,
     };
   });
 
-async function runScenario(browser, embedHtmls, pageMarkup = "") {
-  const page = await browser.newPage({ viewport: { width: 430, height: 735 } });
+async function runScenario(
+  browser,
+  embedHtmls,
+  pageMarkup = "",
+  viewport = { width: 430, height: 735 }
+) {
+  const page = await browser.newPage({ viewport });
   await page.route("http://runtime.test/**", (route) => {
     if (route.request().url().endsWith("/scripts/gymfusion-loader.js")) {
       return route.fulfill({ contentType: "text/javascript", body: runtime });
@@ -154,6 +167,47 @@ async function runScenario(browser, embedHtmls, pageMarkup = "") {
     await controlled.waitForTimeout(1700);
     assert.equal(isDismissed(await sample(controlled)), true, "valid READY should allow dismissal");
     await controlled.close();
+
+    const desktop = await runScenario(
+      browser,
+      [controlledEmbed("desktop-layout", 4000)],
+      "",
+      { width: 1440, height: 900 }
+    );
+    await desktop.waitForSelector("#gfLoader.gf-galaxy-loaded");
+    await desktop.waitForTimeout(700);
+    const desktopLayout = await sampleLayout(desktop);
+    assert.equal(desktopLayout.brandTopInset, 30, "the desktop brand must sit 30px from the top");
+    assert.equal(desktopLayout.emblemWidth, 80, "the desktop emblem must be 80px wide");
+    assert.equal(desktopLayout.emblemHeight, 80, "the desktop emblem must be 80px high");
+    assert.equal(desktopLayout.logoWidth, 345, "the desktop logo artwork must be 345px wide");
+    assert.ok(
+      Math.abs(desktopLayout.centerHorizontalCenterDelta) <= 1,
+      "the desktop spinner and loading text must remain horizontally centered"
+    );
+    assert.ok(
+      Math.abs(desktopLayout.centerVerticalCenterDelta - 10) <= 1,
+      "the desktop spinner and loading text must sit 10px below vertical center"
+    );
+    assert.equal(desktopLayout.wheelComputedWidth, "86px", "the desktop spinner must be 86px wide");
+    assert.equal(desktopLayout.wheelComputedHeight, "86px", "the desktop spinner must be 86px high");
+    assert.ok(
+      Math.abs(desktopLayout.progressHorizontalCenterDelta) <= 1,
+      "the desktop progress bar must remain horizontally centered"
+    );
+    assert.equal(desktopLayout.progressWidth, 780, "the desktop progress bar must be 780px wide");
+    assert.equal(desktopLayout.progressHeight, 15, "the desktop progress bar must be 15px high");
+    assert.equal(
+      desktopLayout.progressBottomInset,
+      12,
+      "the desktop progress bar must sit 12px above the bottom"
+    );
+    assert.equal(
+      desktopLayout.loadingFontFamily,
+      "GamuthDisplay, Impact",
+      "desktop loading text must use Impact as the sole fallback"
+    );
+    await desktop.close();
 
     const legacy = await runScenario(browser, ["<p>Legacy embed</p>"]);
     await legacy.waitForTimeout(3800);
