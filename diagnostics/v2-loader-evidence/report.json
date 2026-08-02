@@ -1,0 +1,2534 @@
+{
+  "transition": {
+    "pre": {
+      "label": "pre-settlement",
+      "time": 1434.300000011921,
+      "viewport": {
+        "width": 430,
+        "height": 735
+      },
+      "shellId": 1,
+      "styleId": 1,
+      "shellConnected": true,
+      "shellVersion": "2",
+      "frozenMetrics": "true",
+      "smallHeightSource": "100svh",
+      "metricProbePresent": false,
+      "className": "gf-loader-embed-page gf-galaxy-loaded",
+      "pageMode": "embed",
+      "compositionTop": "85px",
+      "smallHeight": "735px",
+      "logo": {
+        "top": 161,
+        "left": 117,
+        "width": 218,
+        "height": 66.5,
+        "bottom": 227.5,
+        "right": 335
+      },
+      "loading": {
+        "top": 364.5,
+        "left": 84,
+        "width": 262,
+        "height": 38,
+        "bottom": 402.5,
+        "right": 346
+      },
+      "progress": {
+        "top": 421.5,
+        "left": 73,
+        "width": 284,
+        "height": 7,
+        "bottom": 428.5,
+        "right": 357
+      },
+      "wheel": {
+        "top": 279.5,
+        "left": 181,
+        "width": 68,
+        "height": 68,
+        "bottom": 347.5,
+        "right": 249
+      },
+      "canvas": {
+        "top": 0,
+        "left": 0,
+        "width": 430,
+        "height": 735,
+        "bottom": 735,
+        "right": 430
+      },
+      "canvasStyle": {
+        "backgroundSize": "auto, 100%",
+        "backgroundPosition": "50% 50%, 50% 0%",
+        "transform": "matrix(1, 0, 0, 1, -215, 0)",
+        "opacity": "0.108353"
+      },
+      "progressStyle": {
+        "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+        "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+        "inlineWidth": "8.4%"
+      },
+      "loadingText": "POTENTIAL",
+      "scroll": {
+        "y": 0,
+        "bodyPosition": "fixed",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden"
+      }
+    },
+    "post": {
+      "label": "post-settlement",
+      "time": 1757.3999999761581,
+      "viewport": {
+        "width": 320,
+        "height": 547
+      },
+      "shellId": 1,
+      "styleId": 1,
+      "shellConnected": true,
+      "shellVersion": "2",
+      "frozenMetrics": "true",
+      "smallHeightSource": "100svh",
+      "metricProbePresent": false,
+      "className": "gf-loader-embed-page gf-galaxy-loaded",
+      "pageMode": "embed",
+      "compositionTop": "85px",
+      "smallHeight": "735px",
+      "logo": {
+        "top": 161,
+        "left": 62,
+        "width": 218,
+        "height": 66.5,
+        "bottom": 227.5,
+        "right": 280
+      },
+      "loading": {
+        "top": 364.5,
+        "left": 29,
+        "width": 262,
+        "height": 38,
+        "bottom": 402.5,
+        "right": 291
+      },
+      "progress": {
+        "top": 421.5,
+        "left": 18,
+        "width": 284,
+        "height": 7,
+        "bottom": 428.5,
+        "right": 302
+      },
+      "wheel": {
+        "top": 279.5,
+        "left": 126,
+        "width": 68,
+        "height": 68,
+        "bottom": 347.5,
+        "right": 194
+      },
+      "canvas": {
+        "top": 0,
+        "left": -55,
+        "width": 430,
+        "height": 735,
+        "bottom": 735,
+        "right": 375
+      },
+      "canvasStyle": {
+        "backgroundSize": "auto, 100%",
+        "backgroundPosition": "50% 50%, 50% 0%",
+        "transform": "matrix(1, 0, 0, 1, -215, 0)",
+        "opacity": "0.840933"
+      },
+      "progressStyle": {
+        "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+        "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+        "inlineWidth": "12.8%"
+      },
+      "loadingText": "POTENTIAL",
+      "scroll": {
+        "y": 0,
+        "bodyPosition": "fixed",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden"
+      }
+    },
+    "adoption": {
+      "label": "runtime-adoption-confirmed",
+      "time": 1894.5999999642372,
+      "viewport": {
+        "width": 320,
+        "height": 547
+      },
+      "shellId": 1,
+      "styleId": 1,
+      "shellConnected": true,
+      "shellVersion": "2",
+      "frozenMetrics": "true",
+      "smallHeightSource": "100svh",
+      "metricProbePresent": false,
+      "className": "gf-loader-embed-page gf-galaxy-loaded",
+      "pageMode": "embed",
+      "compositionTop": "85px",
+      "smallHeight": "735px",
+      "logo": {
+        "top": 161,
+        "left": 62,
+        "width": 218,
+        "height": 66.5,
+        "bottom": 227.5,
+        "right": 280
+      },
+      "loading": {
+        "top": 364.5,
+        "left": 29,
+        "width": 262,
+        "height": 38,
+        "bottom": 402.5,
+        "right": 291
+      },
+      "progress": {
+        "top": 421.5,
+        "left": 18,
+        "width": 284,
+        "height": 7,
+        "bottom": 428.5,
+        "right": 302
+      },
+      "wheel": {
+        "top": 279.5,
+        "left": 126,
+        "width": 68,
+        "height": 68,
+        "bottom": 347.5,
+        "right": 194
+      },
+      "canvas": {
+        "top": 0,
+        "left": -55,
+        "width": 430,
+        "height": 735,
+        "bottom": 735,
+        "right": 375
+      },
+      "canvasStyle": {
+        "backgroundSize": "auto, 100%",
+        "backgroundPosition": "50% 50%, 50% 0%",
+        "transform": "matrix(1, 0, 0, 1, -215, 0)",
+        "opacity": "0.858269"
+      },
+      "progressStyle": {
+        "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+        "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+        "inlineWidth": "15%"
+      },
+      "loadingText": "POTENTIAL",
+      "scroll": {
+        "y": 0,
+        "bodyPosition": "fixed",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden"
+      }
+    },
+    "background": {
+      "label": "background-loaded",
+      "time": 2603.099999964237,
+      "viewport": {
+        "width": 320,
+        "height": 547
+      },
+      "shellId": 1,
+      "styleId": 1,
+      "shellConnected": true,
+      "shellVersion": "2",
+      "frozenMetrics": "true",
+      "smallHeightSource": "100svh",
+      "metricProbePresent": false,
+      "className": "gf-loader-embed-page gf-galaxy-loaded",
+      "pageMode": "embed",
+      "compositionTop": "85px",
+      "smallHeight": "735px",
+      "logo": {
+        "top": 161,
+        "left": 62,
+        "width": 218,
+        "height": 66.5,
+        "bottom": 227.5,
+        "right": 280
+      },
+      "loading": {
+        "top": 364.5,
+        "left": 29,
+        "width": 262,
+        "height": 38,
+        "bottom": 402.5,
+        "right": 291
+      },
+      "progress": {
+        "top": 421.5,
+        "left": 18,
+        "width": 284,
+        "height": 7,
+        "bottom": 428.5,
+        "right": 302
+      },
+      "wheel": {
+        "top": 279.5,
+        "left": 126,
+        "width": 68,
+        "height": 68,
+        "bottom": 347.5,
+        "right": 194
+      },
+      "canvas": {
+        "top": 0,
+        "left": -55,
+        "width": 430,
+        "height": 735,
+        "bottom": 735,
+        "right": 375
+      },
+      "canvasStyle": {
+        "backgroundSize": "auto, 100%",
+        "backgroundPosition": "50% 50%, 50% 0%",
+        "transform": "matrix(1, 0, 0, 1, -215, 0)",
+        "opacity": "0.86"
+      },
+      "progressStyle": {
+        "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+        "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+        "inlineWidth": "26%"
+      },
+      "loadingText": "POTENTIAL",
+      "scroll": {
+        "y": 0,
+        "bodyPosition": "fixed",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden"
+      }
+    },
+    "preExit": {
+      "label": "pre-exit",
+      "time": 2611.199999988079,
+      "viewport": {
+        "width": 320,
+        "height": 547
+      },
+      "shellId": 1,
+      "styleId": 1,
+      "shellConnected": true,
+      "shellVersion": "2",
+      "frozenMetrics": "true",
+      "smallHeightSource": "100svh",
+      "metricProbePresent": false,
+      "className": "gf-loader-embed-page gf-galaxy-loaded",
+      "pageMode": "embed",
+      "compositionTop": "85px",
+      "smallHeight": "735px",
+      "logo": {
+        "top": 161,
+        "left": 62,
+        "width": 218,
+        "height": 66.5,
+        "bottom": 227.5,
+        "right": 280
+      },
+      "loading": {
+        "top": 364.5,
+        "left": 29,
+        "width": 262,
+        "height": 38,
+        "bottom": 402.5,
+        "right": 291
+      },
+      "progress": {
+        "top": 421.5,
+        "left": 18,
+        "width": 284,
+        "height": 7,
+        "bottom": 428.5,
+        "right": 302
+      },
+      "wheel": {
+        "top": 279.5,
+        "left": 126,
+        "width": 68,
+        "height": 68,
+        "bottom": 347.5,
+        "right": 194
+      },
+      "canvas": {
+        "top": 0,
+        "left": -55,
+        "width": 430,
+        "height": 735,
+        "bottom": 735,
+        "right": 375
+      },
+      "canvasStyle": {
+        "backgroundSize": "auto, 100%",
+        "backgroundPosition": "50% 50%, 50% 0%",
+        "transform": "matrix(1, 0, 0, 1, -215, 0)",
+        "opacity": "0.86"
+      },
+      "progressStyle": {
+        "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+        "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+        "inlineWidth": "26%"
+      },
+      "loadingText": "POTENTIAL",
+      "scroll": {
+        "y": 0,
+        "bodyPosition": "fixed",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden"
+      }
+    },
+    "evidence": {
+      "snapshots": [
+        {
+          "label": "runtime-adoption",
+          "time": 825.5,
+          "viewport": {
+            "width": 430,
+            "height": 735
+          },
+          "shellId": 1,
+          "styleId": 1,
+          "shellConnected": true,
+          "shellVersion": "2",
+          "frozenMetrics": "true",
+          "smallHeightSource": "100svh",
+          "metricProbePresent": false,
+          "className": "gf-loader-embed-page",
+          "pageMode": "embed",
+          "compositionTop": "85px",
+          "smallHeight": "735px",
+          "logo": {
+            "top": 161,
+            "left": 117,
+            "width": 218,
+            "height": 66.5,
+            "bottom": 227.5,
+            "right": 335
+          },
+          "loading": {
+            "top": 364.5,
+            "left": 84,
+            "width": 262,
+            "height": 38,
+            "bottom": 402.5,
+            "right": 346
+          },
+          "progress": {
+            "top": 421.5,
+            "left": 73,
+            "width": 284,
+            "height": 7,
+            "bottom": 428.5,
+            "right": 357
+          },
+          "wheel": {
+            "top": 279.5,
+            "left": 181,
+            "width": 68,
+            "height": 68,
+            "bottom": 347.5,
+            "right": 249
+          },
+          "canvas": {
+            "top": 0,
+            "left": 0,
+            "width": 430,
+            "height": 735,
+            "bottom": 735,
+            "right": 430
+          },
+          "canvasStyle": {
+            "backgroundSize": "auto, 100%",
+            "backgroundPosition": "50% 50%, 50% 0%",
+            "transform": "matrix(1, 0, 0, 1, -215, 0)",
+            "opacity": "0"
+          },
+          "progressStyle": {
+            "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+            "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+            "inlineWidth": ""
+          },
+          "loadingText": "POTENTIAL",
+          "scroll": {
+            "y": 0,
+            "bodyPosition": "fixed",
+            "bodyOverflow": "hidden",
+            "rootOverflow": "hidden"
+          }
+        },
+        {
+          "label": "first-visible-bootstrap",
+          "time": 915,
+          "viewport": {
+            "width": 430,
+            "height": 735
+          },
+          "shellId": 1,
+          "styleId": 1,
+          "shellConnected": true,
+          "shellVersion": "2",
+          "frozenMetrics": "true",
+          "smallHeightSource": "100svh",
+          "metricProbePresent": false,
+          "className": "gf-loader-embed-page",
+          "pageMode": "embed",
+          "compositionTop": "85px",
+          "smallHeight": "735px",
+          "logo": {
+            "top": 161,
+            "left": 117,
+            "width": 218,
+            "height": 66.5,
+            "bottom": 227.5,
+            "right": 335
+          },
+          "loading": {
+            "top": 364.5,
+            "left": 84,
+            "width": 262,
+            "height": 38,
+            "bottom": 402.5,
+            "right": 346
+          },
+          "progress": {
+            "top": 421.5,
+            "left": 73,
+            "width": 284,
+            "height": 7,
+            "bottom": 428.5,
+            "right": 357
+          },
+          "wheel": {
+            "top": 279.5,
+            "left": 181,
+            "width": 68,
+            "height": 68,
+            "bottom": 347.5,
+            "right": 249
+          },
+          "canvas": {
+            "top": 0,
+            "left": 0,
+            "width": 430,
+            "height": 735,
+            "bottom": 735,
+            "right": 430
+          },
+          "canvasStyle": {
+            "backgroundSize": "auto, 100%",
+            "backgroundPosition": "50% 50%, 50% 0%",
+            "transform": "matrix(1, 0, 0, 1, -215, 0)",
+            "opacity": "0"
+          },
+          "progressStyle": {
+            "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+            "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+            "inlineWidth": ""
+          },
+          "loadingText": "POTENTIAL",
+          "scroll": {
+            "y": 0,
+            "bodyPosition": "fixed",
+            "bodyOverflow": "hidden",
+            "rootOverflow": "hidden"
+          }
+        },
+        {
+          "label": "pre-settlement",
+          "time": 1434.300000011921,
+          "viewport": {
+            "width": 430,
+            "height": 735
+          },
+          "shellId": 1,
+          "styleId": 1,
+          "shellConnected": true,
+          "shellVersion": "2",
+          "frozenMetrics": "true",
+          "smallHeightSource": "100svh",
+          "metricProbePresent": false,
+          "className": "gf-loader-embed-page gf-galaxy-loaded",
+          "pageMode": "embed",
+          "compositionTop": "85px",
+          "smallHeight": "735px",
+          "logo": {
+            "top": 161,
+            "left": 117,
+            "width": 218,
+            "height": 66.5,
+            "bottom": 227.5,
+            "right": 335
+          },
+          "loading": {
+            "top": 364.5,
+            "left": 84,
+            "width": 262,
+            "height": 38,
+            "bottom": 402.5,
+            "right": 346
+          },
+          "progress": {
+            "top": 421.5,
+            "left": 73,
+            "width": 284,
+            "height": 7,
+            "bottom": 428.5,
+            "right": 357
+          },
+          "wheel": {
+            "top": 279.5,
+            "left": 181,
+            "width": 68,
+            "height": 68,
+            "bottom": 347.5,
+            "right": 249
+          },
+          "canvas": {
+            "top": 0,
+            "left": 0,
+            "width": 430,
+            "height": 735,
+            "bottom": 735,
+            "right": 430
+          },
+          "canvasStyle": {
+            "backgroundSize": "auto, 100%",
+            "backgroundPosition": "50% 50%, 50% 0%",
+            "transform": "matrix(1, 0, 0, 1, -215, 0)",
+            "opacity": "0.108353"
+          },
+          "progressStyle": {
+            "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+            "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+            "inlineWidth": "8.4%"
+          },
+          "loadingText": "POTENTIAL",
+          "scroll": {
+            "y": 0,
+            "bodyPosition": "fixed",
+            "bodyOverflow": "hidden",
+            "rootOverflow": "hidden"
+          }
+        },
+        {
+          "label": "post-settlement",
+          "time": 1757.3999999761581,
+          "viewport": {
+            "width": 320,
+            "height": 547
+          },
+          "shellId": 1,
+          "styleId": 1,
+          "shellConnected": true,
+          "shellVersion": "2",
+          "frozenMetrics": "true",
+          "smallHeightSource": "100svh",
+          "metricProbePresent": false,
+          "className": "gf-loader-embed-page gf-galaxy-loaded",
+          "pageMode": "embed",
+          "compositionTop": "85px",
+          "smallHeight": "735px",
+          "logo": {
+            "top": 161,
+            "left": 62,
+            "width": 218,
+            "height": 66.5,
+            "bottom": 227.5,
+            "right": 280
+          },
+          "loading": {
+            "top": 364.5,
+            "left": 29,
+            "width": 262,
+            "height": 38,
+            "bottom": 402.5,
+            "right": 291
+          },
+          "progress": {
+            "top": 421.5,
+            "left": 18,
+            "width": 284,
+            "height": 7,
+            "bottom": 428.5,
+            "right": 302
+          },
+          "wheel": {
+            "top": 279.5,
+            "left": 126,
+            "width": 68,
+            "height": 68,
+            "bottom": 347.5,
+            "right": 194
+          },
+          "canvas": {
+            "top": 0,
+            "left": -55,
+            "width": 430,
+            "height": 735,
+            "bottom": 735,
+            "right": 375
+          },
+          "canvasStyle": {
+            "backgroundSize": "auto, 100%",
+            "backgroundPosition": "50% 50%, 50% 0%",
+            "transform": "matrix(1, 0, 0, 1, -215, 0)",
+            "opacity": "0.840933"
+          },
+          "progressStyle": {
+            "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+            "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+            "inlineWidth": "12.8%"
+          },
+          "loadingText": "POTENTIAL",
+          "scroll": {
+            "y": 0,
+            "bodyPosition": "fixed",
+            "bodyOverflow": "hidden",
+            "rootOverflow": "hidden"
+          }
+        },
+        {
+          "label": "runtime-adoption-confirmed",
+          "time": 1894.5999999642372,
+          "viewport": {
+            "width": 320,
+            "height": 547
+          },
+          "shellId": 1,
+          "styleId": 1,
+          "shellConnected": true,
+          "shellVersion": "2",
+          "frozenMetrics": "true",
+          "smallHeightSource": "100svh",
+          "metricProbePresent": false,
+          "className": "gf-loader-embed-page gf-galaxy-loaded",
+          "pageMode": "embed",
+          "compositionTop": "85px",
+          "smallHeight": "735px",
+          "logo": {
+            "top": 161,
+            "left": 62,
+            "width": 218,
+            "height": 66.5,
+            "bottom": 227.5,
+            "right": 280
+          },
+          "loading": {
+            "top": 364.5,
+            "left": 29,
+            "width": 262,
+            "height": 38,
+            "bottom": 402.5,
+            "right": 291
+          },
+          "progress": {
+            "top": 421.5,
+            "left": 18,
+            "width": 284,
+            "height": 7,
+            "bottom": 428.5,
+            "right": 302
+          },
+          "wheel": {
+            "top": 279.5,
+            "left": 126,
+            "width": 68,
+            "height": 68,
+            "bottom": 347.5,
+            "right": 194
+          },
+          "canvas": {
+            "top": 0,
+            "left": -55,
+            "width": 430,
+            "height": 735,
+            "bottom": 735,
+            "right": 375
+          },
+          "canvasStyle": {
+            "backgroundSize": "auto, 100%",
+            "backgroundPosition": "50% 50%, 50% 0%",
+            "transform": "matrix(1, 0, 0, 1, -215, 0)",
+            "opacity": "0.858269"
+          },
+          "progressStyle": {
+            "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+            "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+            "inlineWidth": "15%"
+          },
+          "loadingText": "POTENTIAL",
+          "scroll": {
+            "y": 0,
+            "bodyPosition": "fixed",
+            "bodyOverflow": "hidden",
+            "rootOverflow": "hidden"
+          }
+        },
+        {
+          "label": "background-loaded",
+          "time": 2603.099999964237,
+          "viewport": {
+            "width": 320,
+            "height": 547
+          },
+          "shellId": 1,
+          "styleId": 1,
+          "shellConnected": true,
+          "shellVersion": "2",
+          "frozenMetrics": "true",
+          "smallHeightSource": "100svh",
+          "metricProbePresent": false,
+          "className": "gf-loader-embed-page gf-galaxy-loaded",
+          "pageMode": "embed",
+          "compositionTop": "85px",
+          "smallHeight": "735px",
+          "logo": {
+            "top": 161,
+            "left": 62,
+            "width": 218,
+            "height": 66.5,
+            "bottom": 227.5,
+            "right": 280
+          },
+          "loading": {
+            "top": 364.5,
+            "left": 29,
+            "width": 262,
+            "height": 38,
+            "bottom": 402.5,
+            "right": 291
+          },
+          "progress": {
+            "top": 421.5,
+            "left": 18,
+            "width": 284,
+            "height": 7,
+            "bottom": 428.5,
+            "right": 302
+          },
+          "wheel": {
+            "top": 279.5,
+            "left": 126,
+            "width": 68,
+            "height": 68,
+            "bottom": 347.5,
+            "right": 194
+          },
+          "canvas": {
+            "top": 0,
+            "left": -55,
+            "width": 430,
+            "height": 735,
+            "bottom": 735,
+            "right": 375
+          },
+          "canvasStyle": {
+            "backgroundSize": "auto, 100%",
+            "backgroundPosition": "50% 50%, 50% 0%",
+            "transform": "matrix(1, 0, 0, 1, -215, 0)",
+            "opacity": "0.86"
+          },
+          "progressStyle": {
+            "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+            "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+            "inlineWidth": "26%"
+          },
+          "loadingText": "POTENTIAL",
+          "scroll": {
+            "y": 0,
+            "bodyPosition": "fixed",
+            "bodyOverflow": "hidden",
+            "rootOverflow": "hidden"
+          }
+        },
+        {
+          "label": "pre-exit",
+          "time": 2611.199999988079,
+          "viewport": {
+            "width": 320,
+            "height": 547
+          },
+          "shellId": 1,
+          "styleId": 1,
+          "shellConnected": true,
+          "shellVersion": "2",
+          "frozenMetrics": "true",
+          "smallHeightSource": "100svh",
+          "metricProbePresent": false,
+          "className": "gf-loader-embed-page gf-galaxy-loaded",
+          "pageMode": "embed",
+          "compositionTop": "85px",
+          "smallHeight": "735px",
+          "logo": {
+            "top": 161,
+            "left": 62,
+            "width": 218,
+            "height": 66.5,
+            "bottom": 227.5,
+            "right": 280
+          },
+          "loading": {
+            "top": 364.5,
+            "left": 29,
+            "width": 262,
+            "height": 38,
+            "bottom": 402.5,
+            "right": 291
+          },
+          "progress": {
+            "top": 421.5,
+            "left": 18,
+            "width": 284,
+            "height": 7,
+            "bottom": 428.5,
+            "right": 302
+          },
+          "wheel": {
+            "top": 279.5,
+            "left": 126,
+            "width": 68,
+            "height": 68,
+            "bottom": 347.5,
+            "right": 194
+          },
+          "canvas": {
+            "top": 0,
+            "left": -55,
+            "width": 430,
+            "height": 735,
+            "bottom": 735,
+            "right": 375
+          },
+          "canvasStyle": {
+            "backgroundSize": "auto, 100%",
+            "backgroundPosition": "50% 50%, 50% 0%",
+            "transform": "matrix(1, 0, 0, 1, -215, 0)",
+            "opacity": "0.86"
+          },
+          "progressStyle": {
+            "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+            "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+            "inlineWidth": "26%"
+          },
+          "loadingText": "POTENTIAL",
+          "scroll": {
+            "y": 0,
+            "bodyPosition": "fixed",
+            "bodyOverflow": "hidden",
+            "rootOverflow": "hidden"
+          }
+        }
+      ],
+      "shellIds": [
+        1
+      ],
+      "classHistory": [
+        "gf-loader-embed-page",
+        "gf-loader-embed-page gf-galaxy-loaded"
+      ],
+      "childMutations": 0,
+      "events": []
+    }
+  },
+  "compatibility": [
+    {
+      "combination": "old-bootstrap + old-runtime",
+      "before": {
+        "label": "compat-before-runtime",
+        "time": 267.69999998807907,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": null,
+        "shellConnected": true,
+        "shellVersion": "legacy",
+        "frozenMetrics": null,
+        "smallHeightSource": null,
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page",
+        "pageMode": null,
+        "compositionTop": "",
+        "smallHeight": "",
+        "logo": {
+          "top": 64.09375,
+          "left": 51,
+          "width": 218,
+          "height": 99.90625,
+          "bottom": 164,
+          "right": 269
+        },
+        "loading": {
+          "top": 333,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 371,
+          "right": 291
+        },
+        "progress": {
+          "top": 474,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 481,
+          "right": 302
+        },
+        "wheel": {
+          "top": 248,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 316,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "none",
+          "opacity": "0"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(5, 4, 7) 0%, rgb(42, 15, 67) 16%, rgb(162, 48, 255) 58%, rgb(201, 166, 255) 100%)",
+          "boxShadow": "rgba(143, 57, 255, 0.48) 0px 0px 18px 0px",
+          "inlineWidth": ""
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "static",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "after": {
+        "label": "compat-after-runtime",
+        "time": 1349.1000000238419,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": null,
+        "shellConnected": true,
+        "shellVersion": "legacy",
+        "frozenMetrics": null,
+        "smallHeightSource": null,
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page",
+        "pageMode": null,
+        "compositionTop": "",
+        "smallHeight": "",
+        "logo": {
+          "top": 64.09375,
+          "left": 51,
+          "width": 218,
+          "height": 99.90625,
+          "bottom": 164,
+          "right": 269
+        },
+        "loading": {
+          "top": 333,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 371,
+          "right": 291
+        },
+        "progress": {
+          "top": 474,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 481,
+          "right": 302
+        },
+        "wheel": {
+          "top": 248,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 316,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "none",
+          "opacity": "0"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(5, 4, 7) 0%, rgb(42, 15, 67) 16%, rgb(162, 48, 255) 58%, rgb(201, 166, 255) 100%)",
+          "boxShadow": "rgba(143, 57, 255, 0.48) 0px 0px 18px 0px",
+          "inlineWidth": ""
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "shellReplaced": false,
+      "styleAdded": false,
+      "styleReplaced": false,
+      "layoutChanged": false,
+      "pageClassChanged": false,
+      "progressCssChanged": false,
+      "progressReset": false,
+      "loadingTextReset": false,
+      "childMutations": 0,
+      "visibleFlashPixels": 0,
+      "visibleFlashRatio": 0
+    },
+    {
+      "combination": "old-bootstrap + new-runtime",
+      "before": {
+        "label": "compat-before-runtime",
+        "time": 436.39999997615814,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": null,
+        "shellConnected": true,
+        "shellVersion": "legacy",
+        "frozenMetrics": null,
+        "smallHeightSource": null,
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page",
+        "pageMode": null,
+        "compositionTop": "",
+        "smallHeight": "",
+        "logo": {
+          "top": 64.09375,
+          "left": 51,
+          "width": 218,
+          "height": 99.90625,
+          "bottom": 164,
+          "right": 269
+        },
+        "loading": {
+          "top": 333,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 371,
+          "right": 291
+        },
+        "progress": {
+          "top": 474,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 481,
+          "right": 302
+        },
+        "wheel": {
+          "top": 248,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 316,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "none",
+          "opacity": "0"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(5, 4, 7) 0%, rgb(42, 15, 67) 16%, rgb(162, 48, 255) 58%, rgb(201, 166, 255) 100%)",
+          "boxShadow": "rgba(143, 57, 255, 0.48) 0px 0px 18px 0px",
+          "inlineWidth": ""
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "static",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "after": {
+        "label": "runtime-adoption",
+        "time": 1259.300000011921,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": null,
+        "shellConnected": true,
+        "shellVersion": "legacy",
+        "frozenMetrics": null,
+        "smallHeightSource": null,
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page",
+        "pageMode": null,
+        "compositionTop": "",
+        "smallHeight": "",
+        "logo": {
+          "top": 64.09375,
+          "left": 51,
+          "width": 218,
+          "height": 99.90625,
+          "bottom": 164,
+          "right": 269
+        },
+        "loading": {
+          "top": 333,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 371,
+          "right": 291
+        },
+        "progress": {
+          "top": 474,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 481,
+          "right": 302
+        },
+        "wheel": {
+          "top": 248,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 316,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "none",
+          "opacity": "0"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(5, 4, 7) 0%, rgb(42, 15, 67) 16%, rgb(162, 48, 255) 58%, rgb(201, 166, 255) 100%)",
+          "boxShadow": "rgba(143, 57, 255, 0.48) 0px 0px 18px 0px",
+          "inlineWidth": ""
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "shellReplaced": false,
+      "styleAdded": false,
+      "styleReplaced": false,
+      "layoutChanged": false,
+      "pageClassChanged": false,
+      "progressCssChanged": false,
+      "progressReset": false,
+      "loadingTextReset": false,
+      "childMutations": 0,
+      "visibleFlashPixels": 0,
+      "visibleFlashRatio": 0
+    },
+    {
+      "combination": "new-bootstrap + old-runtime",
+      "before": {
+        "label": "compat-before-runtime",
+        "time": 1749.699999988079,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-embed-page gf-galaxy-loaded",
+        "pageMode": "embed",
+        "compositionTop": "85px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 161,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 227.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 364.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 402.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 421.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 428.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 279.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 347.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "none",
+          "opacity": "0.86"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "10.6%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "after": {
+        "label": "compat-after-runtime",
+        "time": 1968.3999999761581,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-embed-page gf-galaxy-loaded",
+        "pageMode": "embed",
+        "compositionTop": "85px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 161,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 227.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 364.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 402.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 421.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 428.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 279.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 347.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "none",
+          "opacity": "0.86"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "12.8%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "shellReplaced": false,
+      "styleAdded": false,
+      "styleReplaced": false,
+      "layoutChanged": false,
+      "pageClassChanged": false,
+      "progressCssChanged": false,
+      "progressReset": false,
+      "loadingTextReset": false,
+      "childMutations": 0,
+      "visibleFlashPixels": 65,
+      "visibleFlashRatio": 0.0005642361111111111
+    },
+    {
+      "combination": "new-bootstrap + new-runtime",
+      "before": {
+        "label": "compat-before-runtime",
+        "time": 1854.199999988079,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-embed-page gf-galaxy-loaded",
+        "pageMode": "embed",
+        "compositionTop": "85px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 161,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 227.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 364.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 402.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 421.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 428.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 279.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 347.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "none",
+          "opacity": "0.86"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "10.6%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "after": {
+        "label": "runtime-adoption",
+        "time": 1240.5999999642372,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-embed-page",
+        "pageMode": "embed",
+        "compositionTop": "85px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 161,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 227.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 364.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 402.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 421.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 428.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 279.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 347.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 320,
+          "height": 547,
+          "bottom": 547,
+          "right": 320
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "matrix(1, 0, 0, 1, -160, 0)",
+          "opacity": "0"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": ""
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "shellReplaced": false,
+      "styleAdded": false,
+      "styleReplaced": false,
+      "layoutChanged": false,
+      "pageClassChanged": false,
+      "progressCssChanged": false,
+      "progressReset": true,
+      "loadingTextReset": false,
+      "childMutations": 0,
+      "visibleFlashPixels": 23,
+      "visibleFlashRatio": 0.0001996527777777778
+    }
+  ],
+  "gapComparisons": [
+    {
+      "file": "/Users/ccuser/gymfusion-assets/diagnostics/v2-loader-evidence/brand-gap-10px.png",
+      "snapshot": {
+        "label": "comparison-brand-gap-10px",
+        "time": 6513.300000011921,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page gf-galaxy-loaded",
+        "pageMode": "standard",
+        "compositionTop": "85px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 159,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 225.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 362.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 400.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 419.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 426.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 277.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 345.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 320,
+          "height": 547,
+          "bottom": 547,
+          "right": 320
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "matrix(1, 0, 0, 1, -160, 0)",
+          "opacity": "0.736491"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "10%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      }
+    },
+    {
+      "file": "/Users/ccuser/gymfusion-assets/diagnostics/v2-loader-evidence/brand-gap-12px.png",
+      "snapshot": {
+        "label": "comparison-brand-gap-12px",
+        "time": 6697.5,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page gf-galaxy-loaded",
+        "pageMode": "standard",
+        "compositionTop": "85px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 161,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 227.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 364.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 402.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 421.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 428.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 279.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 347.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 320,
+          "height": 547,
+          "bottom": 547,
+          "right": 320
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "matrix(1, 0, 0, 1, -160, 0)",
+          "opacity": "0.289244"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "10%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      }
+    },
+    {
+      "file": "/Users/ccuser/gymfusion-assets/diagnostics/v2-loader-evidence/brand-gap-14px.png",
+      "snapshot": {
+        "label": "comparison-brand-gap-14px",
+        "time": 7883.900000035763,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page gf-galaxy-loaded",
+        "pageMode": "standard",
+        "compositionTop": "85px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 163,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 229.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 366.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 404.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 423.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 430.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 281.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 349.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 320,
+          "height": 547,
+          "bottom": 547,
+          "right": 320
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "matrix(1, 0, 0, 1, -160, 0)",
+          "opacity": "0.366554"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "19%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      }
+    }
+  ],
+  "topComparisons": [
+    {
+      "file": "/Users/ccuser/gymfusion-assets/diagnostics/v2-loader-evidence/composition-top-80px.png",
+      "snapshot": {
+        "label": "comparison-composition-top-80px",
+        "time": 6561.800000011921,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page gf-galaxy-loaded",
+        "pageMode": "standard",
+        "compositionTop": "80px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 156,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 222.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 359.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 397.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 416.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 423.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 274.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 342.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 320,
+          "height": 547,
+          "bottom": 547,
+          "right": 320
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "matrix(1, 0, 0, 1, -160, 0)",
+          "opacity": "0.756526"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "10%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      }
+    },
+    {
+      "file": "/Users/ccuser/gymfusion-assets/diagnostics/v2-loader-evidence/composition-top-85px.png",
+      "snapshot": {
+        "label": "comparison-composition-top-85px",
+        "time": 6453.199999988079,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page gf-galaxy-loaded",
+        "pageMode": "standard",
+        "compositionTop": "85px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 161,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 227.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 364.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 402.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 421.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 428.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 279.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 347.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 320,
+          "height": 547,
+          "bottom": 547,
+          "right": 320
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "matrix(1, 0, 0, 1, -160, 0)",
+          "opacity": "0.646718"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "7%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      }
+    },
+    {
+      "file": "/Users/ccuser/gymfusion-assets/diagnostics/v2-loader-evidence/composition-top-90px.png",
+      "snapshot": {
+        "label": "comparison-composition-top-90px",
+        "time": 6795.100000023842,
+        "viewport": {
+          "width": 320,
+          "height": 547
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page gf-galaxy-loaded",
+        "pageMode": "standard",
+        "compositionTop": "90px",
+        "smallHeight": "547px",
+        "logo": {
+          "top": 166,
+          "left": 62,
+          "width": 218,
+          "height": 66.5,
+          "bottom": 232.5,
+          "right": 280
+        },
+        "loading": {
+          "top": 369.5,
+          "left": 29,
+          "width": 262,
+          "height": 38,
+          "bottom": 407.5,
+          "right": 291
+        },
+        "progress": {
+          "top": 426.5,
+          "left": 18,
+          "width": 284,
+          "height": 7,
+          "bottom": 433.5,
+          "right": 302
+        },
+        "wheel": {
+          "top": 284.5,
+          "left": 126,
+          "width": 68,
+          "height": 68,
+          "bottom": 352.5,
+          "right": 194
+        },
+        "canvas": {
+          "top": 0,
+          "left": 0,
+          "width": 320,
+          "height": 547,
+          "bottom": 547,
+          "right": 320
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, 100%",
+          "backgroundPosition": "50% 50%, 50% 0%",
+          "transform": "matrix(1, 0, 0, 1, -160, 0)",
+          "opacity": "0.438305"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "16%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      }
+    }
+  ],
+  "backgroundPixels": {
+    "initialGeometry": {
+      "label": "background-pixel-initial",
+      "time": 1434,
+      "viewport": {
+        "width": 430,
+        "height": 735
+      },
+      "shellId": 1,
+      "styleId": 1,
+      "shellConnected": true,
+      "shellVersion": "2",
+      "frozenMetrics": "true",
+      "smallHeightSource": "100svh",
+      "metricProbePresent": false,
+      "className": "gf-loader-standard-page gf-galaxy-loaded",
+      "pageMode": "standard",
+      "compositionTop": "85px",
+      "smallHeight": "735px",
+      "logo": {
+        "top": 161,
+        "left": 117,
+        "width": 218,
+        "height": 66.5,
+        "bottom": 227.5,
+        "right": 335
+      },
+      "loading": {
+        "top": 364.5,
+        "left": 84,
+        "width": 262,
+        "height": 38,
+        "bottom": 402.5,
+        "right": 346
+      },
+      "progress": {
+        "top": 421.5,
+        "left": 73,
+        "width": 284,
+        "height": 7,
+        "bottom": 428.5,
+        "right": 357
+      },
+      "wheel": {
+        "top": 279.5,
+        "left": 181,
+        "width": 68,
+        "height": 68,
+        "bottom": 347.5,
+        "right": 249
+      },
+      "canvas": {
+        "top": 0,
+        "left": 0,
+        "width": 430,
+        "height": 735,
+        "bottom": 735,
+        "right": 430
+      },
+      "canvasStyle": {
+        "backgroundSize": "auto, 100%",
+        "backgroundPosition": "50% 50%, 50% 0%",
+        "transform": "matrix(1, 0, 0, 1, -215, 0)",
+        "opacity": "0.86"
+      },
+      "progressStyle": {
+        "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+        "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+        "inlineWidth": "22%"
+      },
+      "loadingText": "POTENTIAL",
+      "scroll": {
+        "y": 0,
+        "bodyPosition": "fixed",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden"
+      }
+    },
+    "finalGeometry": {
+      "label": "background-pixel-final",
+      "time": 1783,
+      "viewport": {
+        "width": 320,
+        "height": 547
+      },
+      "shellId": 1,
+      "styleId": 1,
+      "shellConnected": true,
+      "shellVersion": "2",
+      "frozenMetrics": "true",
+      "smallHeightSource": "100svh",
+      "metricProbePresent": false,
+      "className": "gf-loader-standard-page gf-galaxy-loaded",
+      "pageMode": "standard",
+      "compositionTop": "85px",
+      "smallHeight": "735px",
+      "logo": {
+        "top": 161,
+        "left": 62,
+        "width": 218,
+        "height": 66.5,
+        "bottom": 227.5,
+        "right": 280
+      },
+      "loading": {
+        "top": 364.5,
+        "left": 29,
+        "width": 262,
+        "height": 38,
+        "bottom": 402.5,
+        "right": 291
+      },
+      "progress": {
+        "top": 421.5,
+        "left": 18,
+        "width": 284,
+        "height": 7,
+        "bottom": 428.5,
+        "right": 302
+      },
+      "wheel": {
+        "top": 279.5,
+        "left": 126,
+        "width": 68,
+        "height": 68,
+        "bottom": 347.5,
+        "right": 194
+      },
+      "canvas": {
+        "top": 0,
+        "left": -55,
+        "width": 430,
+        "height": 735,
+        "bottom": 735,
+        "right": 375
+      },
+      "canvasStyle": {
+        "backgroundSize": "auto, 100%",
+        "backgroundPosition": "50% 50%, 50% 0%",
+        "transform": "matrix(1, 0, 0, 1, -215, 0)",
+        "opacity": "0.86"
+      },
+      "progressStyle": {
+        "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+        "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+        "inlineWidth": "24.4%"
+      },
+      "loadingText": "POTENTIAL",
+      "scroll": {
+        "y": 0,
+        "bodyPosition": "fixed",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden"
+      }
+    },
+    "pixels": 0,
+    "ratio": 0
+  },
+  "desktop": {
+    "snapshots": {
+      "old": {
+        "label": "desktop-old",
+        "time": 654.6000000238419,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shellId": 1,
+        "styleId": null,
+        "shellConnected": true,
+        "shellVersion": "legacy",
+        "frozenMetrics": null,
+        "smallHeightSource": null,
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page",
+        "pageMode": null,
+        "compositionTop": "",
+        "smallHeight": "",
+        "logo": {
+          "top": 154.921875,
+          "left": 565,
+          "width": 310,
+          "height": 142.078125,
+          "bottom": 297,
+          "right": 875
+        },
+        "loading": {
+          "top": 535,
+          "left": 460,
+          "width": 520,
+          "height": 38,
+          "bottom": 573,
+          "right": 980
+        },
+        "progress": {
+          "top": 872,
+          "left": 330,
+          "width": 780,
+          "height": 10,
+          "bottom": 882,
+          "right": 1110
+        },
+        "wheel": {
+          "top": 434,
+          "left": 678,
+          "width": 84,
+          "height": 84,
+          "bottom": 518,
+          "right": 762
+        },
+        "canvas": {
+          "top": -9,
+          "left": -14.39996337890625,
+          "width": 1468.7998046875,
+          "height": 918,
+          "bottom": 909,
+          "right": 1454.3998413085938
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, cover",
+          "backgroundPosition": "50% 50%, 50% 50%",
+          "transform": "matrix(1.02, 0, 0, 1.02, 0, 0)",
+          "opacity": "0"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": ""
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "static",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      },
+      "new": {
+        "label": "desktop-new",
+        "time": 6822.400000035763,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shellId": 1,
+        "styleId": 1,
+        "shellConnected": true,
+        "shellVersion": "2",
+        "frozenMetrics": "true",
+        "smallHeightSource": "100svh",
+        "metricProbePresent": false,
+        "className": "gf-loader-standard-page gf-galaxy-loaded",
+        "pageMode": "standard",
+        "compositionTop": "85px",
+        "smallHeight": "900px",
+        "logo": {
+          "top": 154.921875,
+          "left": 565,
+          "width": 310,
+          "height": 142.078125,
+          "bottom": 297,
+          "right": 875
+        },
+        "loading": {
+          "top": 535,
+          "left": 460,
+          "width": 520,
+          "height": 38,
+          "bottom": 573,
+          "right": 980
+        },
+        "progress": {
+          "top": 872,
+          "left": 330,
+          "width": 780,
+          "height": 10,
+          "bottom": 882,
+          "right": 1110
+        },
+        "wheel": {
+          "top": 434,
+          "left": 678,
+          "width": 84,
+          "height": 84,
+          "bottom": 518,
+          "right": 762
+        },
+        "canvas": {
+          "top": -6.005157470703125,
+          "left": -9.60821533203125,
+          "width": 1459.21630859375,
+          "height": 912.01025390625,
+          "bottom": 906.0050964355469,
+          "right": 1449.6080932617188
+        },
+        "canvasStyle": {
+          "backgroundSize": "auto, cover",
+          "backgroundPosition": "50% 50%, 50% 50%",
+          "transform": "matrix(1.01334, 0, 0, 1.01334, 0, 0)",
+          "opacity": "0.286174"
+        },
+        "progressStyle": {
+          "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+          "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+          "inlineWidth": "10%"
+        },
+        "loadingText": "POTENTIAL",
+        "scroll": {
+          "y": 0,
+          "bodyPosition": "fixed",
+          "bodyOverflow": "hidden",
+          "rootOverflow": "hidden"
+        }
+      }
+    },
+    "pixels": 312141,
+    "ratio": 0.24084953703703704
+  },
+  "scrollLock": {
+    "lockedBefore": {
+      "y": 300,
+      "bodyTop": "-300px",
+      "overflow": "hidden"
+    },
+    "lockedAfter": {
+      "y": 300,
+      "bodyTop": "-300px",
+      "overflow": "hidden"
+    },
+    "unlocked": {
+      "y": 300,
+      "bodyPosition": "static",
+      "overflow": "visible"
+    }
+  },
+  "svhFallback": {
+    "label": "svh-fallback",
+    "time": 6372.900000035763,
+    "viewport": {
+      "width": 320,
+      "height": 547
+    },
+    "shellId": 1,
+    "styleId": 1,
+    "shellConnected": true,
+    "shellVersion": "2",
+    "frozenMetrics": "true",
+    "smallHeightSource": "viewport-fallback",
+    "metricProbePresent": false,
+    "className": "gf-loader-standard-page gf-galaxy-loaded",
+    "pageMode": "standard",
+    "compositionTop": "85px",
+    "smallHeight": "547px",
+    "logo": {
+      "top": 161,
+      "left": 62,
+      "width": 218,
+      "height": 66.5,
+      "bottom": 227.5,
+      "right": 280
+    },
+    "loading": {
+      "top": 364.5,
+      "left": 29,
+      "width": 262,
+      "height": 38,
+      "bottom": 402.5,
+      "right": 291
+    },
+    "progress": {
+      "top": 421.5,
+      "left": 18,
+      "width": 284,
+      "height": 7,
+      "bottom": 428.5,
+      "right": 302
+    },
+    "wheel": {
+      "top": 279.5,
+      "left": 126,
+      "width": 68,
+      "height": 68,
+      "bottom": 347.5,
+      "right": 194
+    },
+    "canvas": {
+      "top": 0,
+      "left": 0,
+      "width": 320,
+      "height": 547,
+      "bottom": 547,
+      "right": 320
+    },
+    "canvasStyle": {
+      "backgroundSize": "auto, 100%",
+      "backgroundPosition": "50% 50%, 50% 0%",
+      "transform": "matrix(1, 0, 0, 1, -160, 0)",
+      "opacity": "0.736467"
+    },
+    "progressStyle": {
+      "backgroundImage": "linear-gradient(90deg, rgb(112, 0, 247) 0%, rgb(155, 0, 255) 15%, rgb(197, 0, 214) 30%, rgb(237, 0, 122) 50%, rgb(255, 0, 69) 68%, rgb(255, 74, 28) 82%, rgb(255, 122, 0) 92%, rgb(255, 160, 0) 100%)",
+      "boxShadow": "rgba(162, 48, 255, 0.58) 0px 0px 18px 0px, rgba(255, 74, 28, 0.34) 0px 0px 28px 0px",
+      "inlineWidth": "7%"
+    },
+    "loadingText": "POTENTIAL",
+    "scroll": {
+      "y": 0,
+      "bodyPosition": "fixed",
+      "bodyOverflow": "hidden",
+      "rootOverflow": "hidden"
+    }
+  },
+  "topRuleCases": [
+    {
+      "safeTop": 0,
+      "smallHeight": 735,
+      "compositionHeight": 343.5,
+      "preferredTop": 85,
+      "result": 85
+    },
+    {
+      "safeTop": 100,
+      "smallHeight": 735,
+      "compositionHeight": 343.5,
+      "preferredTop": 85,
+      "result": 100
+    },
+    {
+      "safeTop": 20,
+      "smallHeight": 400,
+      "compositionHeight": 343.5,
+      "preferredTop": 85,
+      "result": 28
+    }
+  ]
+}
