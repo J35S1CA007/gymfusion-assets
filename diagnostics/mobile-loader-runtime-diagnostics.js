@@ -13,12 +13,16 @@
 
   const startedAt = performance.now();
   const componentSelectors = {
+    loaderRoot: "#gfLoader",
+    composition: ".gf-composition",
     wheel: ".gf-wheel",
     loadingText: ".gf-loading",
     emblem: ".gf-emblem",
     logo: ".gf-logo",
     logoImage: ".gf-logo img",
     loadingBar: ".gf-progress",
+    progressFill: ".gf-progress-fill",
+    backgroundContainer: ".gf-background-canvas, .gf-backdrop-image",
   };
   const highlightLabels = {
     wheel: "Wheel",
@@ -34,6 +38,26 @@
   const viewportMetaTimeline = [];
   const iframeTimeline = [];
   const bodyMutationTimeline = [];
+  const eventTimeline = [];
+  const fontTimeline = [];
+  const messageTimeline = [];
+  const geometryTimeline = [];
+  const cssVariableTimeline = [];
+  const backgroundTimeline = [];
+  const progressTimeline = [];
+  const iframeEvents = [];
+  const resizeTimeline = [];
+  const loaderMutationTimeline = [];
+  const animationFrames = [];
+  const lifecycleCaptures = [];
+  const resourceTimeline = [];
+  const dependencyEdges = [];
+  const eventIndex = new Map();
+  const limitations = [
+    "Page JavaScript cannot capture Safari screen pixels without an external automation hook.",
+    "CSS background decode completion is measured by a diagnostic Image.decode probe, not the production loader Image instance.",
+    "Browsers do not expose per-element paint completion; the first requestAnimationFrame after a class change is a paint-boundary proxy.",
+  ];
   const observers = [];
   const timers = [];
   const bootstrapGlobalNames = [
@@ -61,7 +85,7 @@
   let removalIntercepted = false;
   let lastClassName = null;
   let galaxySeen = false;
-  let viewportTrackingStopped = false;
+  let backgroundClassRecorded = false;
   let lastViewportSignature = null;
   let lastViewportWidth = null;
   let lastViewportChangeAt = null;
@@ -69,8 +93,48 @@
   let viewportDiagnosticsCleanup = null;
   const seenIframes = new WeakSet();
   const viewportMetaNodeState = new WeakMap();
+  const cleanupFunctions = [];
+  const lastGeometryState = new Map();
+  const lastCssVariableState = new Map();
+  const lastResizeState = new Map();
+  const resizeNotifiedTargets = new Set();
+  const iframeState = new WeakMap();
+  const decodedBackgroundUrls = new Set();
+  let eventSequence = 0;
+  let frameSequence = 0;
+  let geometryMonitoringActive = false;
+  let productionRemovalAttempted = false;
+  let firstIframeCaptured = false;
+  let lastMessageText = null;
+  let lastProgressState = null;
+  let lastMutationEventId = null;
+  let lastViewportEventId = null;
+  let lastFontEventId = null;
+  let lastMessageEventId = null;
+  let lastBackgroundEventId = null;
+  let lastProgressEventId = null;
+  let safeAreaProbe = null;
 
   const now = () => Math.round(performance.now() - startedAt);
+  const atForPerformanceTime = (timestamp) => Math.round(timestamp - startedAt);
+  const recordEvent = (category, type, detail = {}, options = {}) => {
+    const entry = {
+      id: `event-${++eventSequence}`,
+      at: typeof options.at === "number" ? options.at : now(),
+      category,
+      type,
+      detail,
+    };
+    eventTimeline.push(entry);
+    eventIndex.set(entry.id, entry);
+    return entry;
+  };
+  const addDependency = (from, to, relation, confidence = "direct") => {
+    const fromId = typeof from === "string" ? from : from?.id;
+    const toId = typeof to === "string" ? to : to?.id;
+    if (!fromId || !toId) return;
+    dependencyEdges.push({ from: fromId, to: toId, relation, confidence });
+  };
   const getNavigationDetails = () => {
     const entry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
     if (!entry) return null;
@@ -147,6 +211,25 @@
       content: meta ? meta.getAttribute("content") : null,
     };
   };
+  const installSafeAreaProbe = () => {
+    if (safeAreaProbe) return;
+    safeAreaProbe = document.createElement("div");
+    safeAreaProbe.id = "gfDiagnosticSafeAreaProbe";
+    safeAreaProbe.setAttribute("aria-hidden", "true");
+    safeAreaProbe.style.cssText = "position:fixed;left:-10000px;top:0;width:0;height:0;visibility:hidden;pointer-events:none;contain:strict;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);";
+    document.documentElement.appendChild(safeAreaProbe);
+    cleanupFunctions.push(() => safeAreaProbe?.remove());
+  };
+  const safeAreaState = () => {
+    if (!safeAreaProbe) return null;
+    const style = getComputedStyle(safeAreaProbe);
+    return {
+      top: style.paddingTop,
+      right: style.paddingRight,
+      bottom: style.paddingBottom,
+      left: style.paddingLeft,
+    };
+  };
   const viewportState = () => ({
     innerWidth: window.innerWidth,
     innerHeight: window.innerHeight,
@@ -160,12 +243,15 @@
     devicePixelRatio: window.devicePixelRatio,
     screenWidth: window.screen ? window.screen.width : null,
     screenHeight: window.screen ? window.screen.height : null,
+    orientation:
+      window.screen && window.screen.orientation ? window.screen.orientation.type : null,
     screenOrientationType:
       window.screen && window.screen.orientation ? window.screen.orientation.type : null,
     screenOrientationAngle:
       window.screen && window.screen.orientation ? window.screen.orientation.angle : null,
     bodyScrollWidth: document.body ? document.body.scrollWidth : null,
     documentScrollWidth: document.documentElement.scrollWidth,
+    safeAreaInsets: safeAreaState(),
     viewportMeta: viewportMetaState(),
     navigation: getNavigationDetails(),
   });
@@ -189,7 +275,65 @@
       state.documentScrollWidth,
       state.viewportMeta.exists,
       state.viewportMeta.content,
+      state.safeAreaInsets?.top ?? null,
+      state.safeAreaInsets?.right ?? null,
+      state.safeAreaInsets?.bottom ?? null,
+      state.safeAreaInsets?.left ?? null,
     ]);
+  const viewportFieldLabels = [
+    "innerWidth",
+    "innerHeight",
+    "clientWidth",
+    "clientHeight",
+    "visualViewportWidth",
+    "visualViewportHeight",
+    "visualViewportScale",
+    "visualViewportOffsetLeft",
+    "visualViewportOffsetTop",
+    "devicePixelRatio",
+    "screenWidth",
+    "screenHeight",
+    "screenOrientationType",
+    "screenOrientationAngle",
+    "bodyScrollWidth",
+    "documentScrollWidth",
+    "viewportMeta.exists",
+    "viewportMeta.content",
+    "safeAreaInsets.top",
+    "safeAreaInsets.right",
+    "safeAreaInsets.bottom",
+    "safeAreaInsets.left",
+  ];
+  const visualViewportMetricFields = new Set([
+    "innerWidth",
+    "innerHeight",
+    "clientWidth",
+    "clientHeight",
+    "visualViewportWidth",
+    "visualViewportHeight",
+    "visualViewportScale",
+    "visualViewportOffsetLeft",
+    "visualViewportOffsetTop",
+    "devicePixelRatio",
+    "screenWidth",
+    "screenHeight",
+    "screenOrientationType",
+    "screenOrientationAngle",
+    "safeAreaInsets.top",
+    "safeAreaInsets.right",
+    "safeAreaInsets.bottom",
+    "safeAreaInsets.left",
+  ]);
+  const viewportChanges = (previousSignature, currentSignature) => {
+    if (!previousSignature) return [];
+    const previous = JSON.parse(previousSignature);
+    const current = JSON.parse(currentSignature);
+    return viewportFieldLabels.flatMap((field, index) =>
+      previous[index] === current[index]
+        ? []
+        : [{ field, before: previous[index], after: current[index] }]
+    );
+  };
   const captureViewportSample = (reason, detail = {}) => {
     const state = viewportState();
     const signature = viewportSignature(state);
@@ -203,35 +347,15 @@
       state,
     };
     if (changed) {
-      entry.changedFields = [];
-      if (lastViewportSignature) {
-        const previous = JSON.parse(lastViewportSignature);
-        const current = JSON.parse(signature);
-        const labels = [
-          "innerWidth",
-          "innerHeight",
-          "clientWidth",
-          "clientHeight",
-          "visualViewportWidth",
-          "visualViewportHeight",
-          "visualViewportScale",
-          "visualViewportOffsetLeft",
-          "visualViewportOffsetTop",
-          "devicePixelRatio",
-          "screenWidth",
-          "screenHeight",
-          "screenOrientationType",
-          "screenOrientationAngle",
-          "bodyScrollWidth",
-          "documentScrollWidth",
-          "viewportMeta.exists",
-          "viewportMeta.content",
-        ];
-        labels.forEach((label, index) => {
-          if (previous[index] !== current[index]) {
-            entry.changedFields.push({ field: label, before: previous[index], after: current[index] });
-          }
-        });
+      entry.changedFields = viewportChanges(lastViewportSignature, signature);
+      const event = recordEvent("viewport", "metrics-changed", {
+        reason,
+        changedFields: entry.changedFields,
+        state,
+      });
+      lastViewportEventId = event.id;
+      if (lastViewportSignature && entry.changedFields.some(({ field }) => visualViewportMetricFields.has(field))) {
+        requestLifecycleCapture("viewport changed", event, { reason, changedFields: entry.changedFields });
       }
     }
     if (widthChanged) {
@@ -248,30 +372,43 @@
   };
   const recordViewportEvent = (name, event = {}) => {
     const state = viewportState();
+    const signature = viewportSignature(state);
+    const metricsChanged = lastViewportSignature !== null && signature !== lastViewportSignature;
+    const changedFields = metricsChanged ? viewportChanges(lastViewportSignature, signature) : [];
     const entry = {
       at: now(),
       event: name,
       persisted: typeof event.persisted === "boolean" ? event.persisted : null,
       state,
+      changedFields,
       viewportChangedSinceLastEvent:
         lastViewportChangeAt !== null ? now() - lastViewportChangeAt : null,
     };
+    if (changedFields.some(({ field }) => visualViewportMetricFields.has(field))) {
+      lastViewportChangeAt = entry.at;
+    }
     if (state.innerWidth !== lastViewportWidth) {
       entry.viewportWidthChange = true;
       entry.widestVisibleElement = widestVisibleElement();
       lastViewportChangeAt = entry.at;
     }
     viewportEvents.push(entry);
+    const timelineEvent = recordEvent("viewport", name, { state, persisted: entry.persisted, changedFields });
+    lastViewportEventId = timelineEvent.id;
+    if (changedFields.some(({ field }) => visualViewportMetricFields.has(field))) {
+      requestLifecycleCapture("viewport changed", timelineEvent, { reason: `event:${name}`, state, changedFields });
+    }
     viewportSamples.push({
       at: entry.at,
       reason: `event:${name}`,
       changed: true,
       detail: { persisted: entry.persisted },
       state,
+      changedFields,
       viewportWidthChange: Boolean(entry.viewportWidthChange),
       widestVisibleElement: entry.widestVisibleElement || null,
     });
-    lastViewportSignature = viewportSignature(state);
+    lastViewportSignature = signature;
     lastViewportWidth = state.innerWidth;
     return entry;
   };
@@ -414,7 +551,249 @@
     });
     return result;
   };
+  const trackedCssVariables = new Set([
+    "--gf-loader-vw",
+    "--gf-loader-vh",
+    "--gf-loader-svh",
+    "--gf-entry-width",
+    "--gf-entry-height",
+    "--gf-small-height",
+    "--gf-safe-top",
+    "--gf-composition-height",
+    "--gf-composition-top",
+    "--gf-brand-gap",
+    "--gf-logo-art-height",
+    "--gf-logo-art-offset",
+    "--gf-logo-size",
+    "--gf-galaxy",
+    "--gf-galaxy-position",
+  ]);
+  const discoverCssVariables = () => {
+    const inspectRules = (rules) => {
+      Array.from(rules || []).forEach((rule) => {
+        if (rule.style) {
+          Array.from(rule.style).forEach((name) => {
+            if (name.startsWith("--gf-")) trackedCssVariables.add(name);
+          });
+        }
+        if (rule.cssRules) inspectRules(rule.cssRules);
+      });
+    };
+    Array.from(document.styleSheets).forEach((sheet) => {
+      try {
+        inspectRules(sheet.cssRules);
+      } catch {
+        // Cross-origin stylesheets cannot be inspected; configured variables remain covered.
+      }
+    });
+  };
+  const cssVariableState = (element) => {
+    if (!element) return null;
+    const style = getComputedStyle(element);
+    const values = {};
+    Array.from(trackedCssVariables).sort().forEach((name) => {
+      values[name] = style.getPropertyValue(name).trim();
+    });
+    return values;
+  };
+  const geometryState = (element) => {
+    if (!element || !element.isConnected) return null;
+    const style = getComputedStyle(element);
+    return {
+      rect: rectOf(element),
+      computedWidth: style.width,
+      computedHeight: style.height,
+      transform: style.transform,
+      opacity: style.opacity,
+      display: style.display,
+      position: style.position,
+      fontFamily: style.fontFamily,
+      fontSize: style.fontSize,
+      lineHeight: style.lineHeight,
+      letterSpacing: style.letterSpacing,
+      animationName: style.animationName,
+      animationDuration: style.animationDuration,
+      animationDelay: style.animationDelay,
+      animationPlayState: style.animationPlayState,
+      backgroundImage: style.backgroundImage,
+      backgroundPosition: style.backgroundPosition,
+      backgroundSize: style.backgroundSize,
+    };
+  };
+  const changedProperties = (previous, current) => {
+    if (!previous || !current) {
+      return [{ property: "state", previous: previous ?? null, current: current ?? null }];
+    }
+    const changes = [];
+    const keys = new Set([...Object.keys(previous), ...Object.keys(current)]);
+    keys.forEach((key) => {
+      if (JSON.stringify(previous[key]) !== JSON.stringify(current[key])) {
+        changes.push({ property: key, previous: previous[key] ?? null, current: current[key] ?? null });
+      }
+    });
+    return changes;
+  };
+  const currentDiagnosticState = () => ({
+    viewport: viewportState(),
+    loader: loaderState(),
+    components: components(),
+    cssVariables: {
+      root: cssVariableState(document.documentElement),
+      loader: cssVariableState(loader),
+    },
+    fontsStatus: document.fonts ? document.fonts.status : "unsupported",
+  });
+  const requestLifecycleCapture = (name, triggerEvent, detail = {}) => {
+    const entry = {
+      id: `capture-${lifecycleCaptures.length + 1}`,
+      at: now(),
+      name,
+      triggerEventId: triggerEvent?.id || null,
+      detail,
+      state: currentDiagnosticState(),
+      screenshot: {
+        status: "external-hook-required",
+        reason: "Browser page JavaScript has no permission to capture Safari screen pixels.",
+      },
+    };
+    lifecycleCaptures.push(entry);
+    const captureEvent = recordEvent("lifecycle-capture", name, {
+      captureId: entry.id,
+      triggerEventId: entry.triggerEventId,
+    });
+    if (triggerEvent) addDependency(triggerEvent, captureEvent, "triggered-capture");
+
+    const requestDetail = {
+      captureId: entry.id,
+      name,
+      at: entry.at,
+      triggerEventId: entry.triggerEventId,
+    };
+    window.dispatchEvent(new CustomEvent("gf-loader-diagnostic-screenshot-request", { detail: requestDetail }));
+    const hook = window.__gfMobileLoaderDiagnosticScreenshotCapture;
+    if (typeof hook === "function") {
+      entry.screenshot.status = "requested";
+      Promise.resolve(hook(requestDetail))
+        .then((result) => {
+          entry.screenshot = { status: "captured", result: result ?? null };
+        })
+        .catch((error) => {
+          entry.screenshot = { status: "failed", error: String(error) };
+        });
+    }
+    return entry;
+  };
+  const recordCssVariableChanges = (targetName, element) => {
+    const current = cssVariableState(element);
+    const previous = lastCssVariableState.get(targetName) || null;
+    if (JSON.stringify(previous) === JSON.stringify(current)) return;
+    const changes = changedProperties(previous, current);
+    const entry = { at: now(), target: targetName, changes };
+    cssVariableTimeline.push(entry);
+    const event = recordEvent("css-variables", "changed", entry);
+    if (lastMutationEventId) addDependency(lastMutationEventId, event, "temporally-preceded-by", "correlation-only");
+    lastCssVariableState.set(targetName, current);
+  };
+  const progressState = () => {
+    const fill = loader?.querySelector(".gf-progress-fill");
+    if (!fill) return null;
+    const style = getComputedStyle(fill);
+    const rect = fill.getBoundingClientRect();
+    return {
+      inlineValue: fill.style.width || null,
+      displayedWidth: rect.width,
+      displayedHeight: rect.height,
+      transform: style.transform,
+      animationName: style.animationName,
+      animationDuration: style.animationDuration,
+      animationDelay: style.animationDelay,
+      animationPlayState: style.animationPlayState,
+      transitionProperty: style.transitionProperty,
+      transitionDuration: style.transitionDuration,
+    };
+  };
+  const recordProgressChanges = (reason) => {
+    const current = progressState();
+    if (JSON.stringify(current) === JSON.stringify(lastProgressState)) return;
+    const entry = {
+      at: now(),
+      reason,
+      changes: changedProperties(lastProgressState, current),
+      state: current,
+    };
+    progressTimeline.push(entry);
+    const event = recordEvent("progress", "changed", entry);
+    lastProgressEventId = event.id;
+    lastProgressState = current;
+  };
+  const recordGeometry = (reason) => {
+    Object.entries(componentSelectors).forEach(([name, selector]) => {
+      const element = name === "loaderRoot" ? loader : loader?.querySelector(selector);
+      const current = geometryState(element);
+      const previous = lastGeometryState.get(name) || null;
+      if (JSON.stringify(previous) === JSON.stringify(current)) return;
+      const entry = {
+        at: now(),
+        reason,
+        target: name,
+        selector,
+        changes: changedProperties(previous, current),
+        previous,
+        current,
+      };
+      geometryTimeline.push(entry);
+      const event = recordEvent("geometry", "changed", {
+        target: name,
+        reason,
+        changes: entry.changes,
+      });
+      [
+        [lastMutationEventId, 1000],
+        [lastViewportEventId, 250],
+        [lastFontEventId, 250],
+        [lastMessageEventId, 500],
+        [lastBackgroundEventId, 700],
+        [lastProgressEventId, 250],
+      ].forEach(([sourceId, windowMs]) => {
+        const source = eventIndex.get(sourceId);
+        if (source && event.at - source.at >= 0 && event.at - source.at <= windowMs) {
+          addDependency(source, event, "temporally-preceded-by", "correlation-only");
+        }
+      });
+      lastGeometryState.set(name, current);
+    });
+    recordCssVariableChanges("documentElement", document.documentElement);
+    recordCssVariableChanges("loader", loader);
+    recordProgressChanges(reason);
+  };
+  const startAnimationFrameDiagnostics = () => {
+    if (geometryMonitoringActive) return;
+    geometryMonitoringActive = true;
+    let previousTimestamp = null;
+    let animationFrameId = 0;
+    const sample = (timestamp) => {
+      frameSequence += 1;
+      if (frameSequence <= 300) {
+        animationFrames.push({
+          frame: frameSequence,
+          at: atForPerformanceTime(timestamp),
+          timestamp,
+          delta: previousTimestamp === null ? null : timestamp - previousTimestamp,
+        });
+      }
+      previousTimestamp = timestamp;
+      if (!productionRemovalAttempted) recordGeometry("requestAnimationFrame");
+      if (frameSequence < 300 || (!productionRemovalAttempted && loader?.isConnected)) {
+        animationFrameId = requestAnimationFrame(sample);
+      } else {
+        geometryMonitoringActive = false;
+      }
+    };
+    animationFrameId = requestAnimationFrame(sample);
+    cleanupFunctions.push(() => cancelAnimationFrame(animationFrameId));
+  };
   const report = () => ({
+    schemaVersion: 3,
     generatedAt: new Date().toISOString(),
     snapshots,
     classHistory,
@@ -422,14 +801,51 @@
     viewportSamples,
     viewportMetaTimeline,
     iframeTimeline,
+    iframeEvents,
     bodyMutationTimeline,
+    timeline: [...eventTimeline].sort((a, b) => a.at - b.at || Number(a.id.slice(6)) - Number(b.id.slice(6))),
+    dependencyGraph: {
+      nodeSource: "timeline",
+      edges: dependencyEdges,
+      relationPolicy: "Only direct instrumentation links are causal; temporally-preceded-by edges are correlation-only.",
+    },
+    fonts: fontTimeline,
+    messages: messageTimeline,
+    geometry: geometryTimeline,
+    cssVariables: cssVariableTimeline,
+    background: backgroundTimeline,
+    progress: progressTimeline,
+    resizeObserver: resizeTimeline,
+    mutations: loaderMutationTimeline,
+    animationFrames,
+    lifecycleCaptures,
+    resources: resourceTimeline,
+    limitations,
+    determination: {
+      status: "requires-captured-run",
+      rule: "Do not attribute a visual change unless a direct dependency edge or uniquely identifying event sequence supports it.",
+    },
     navigationDetails: getNavigationDetails(),
   });
   const render = () => {
     if (!output) return;
-    output.textContent = JSON.stringify(report(), null, 2);
+    output.textContent = JSON.stringify({
+      generatedAt: new Date().toISOString(),
+      counts: {
+        timeline: eventTimeline.length,
+        geometry: geometryTimeline.length,
+        viewport: viewportSamples.length,
+        fonts: fontTimeline.length,
+        background: backgroundTimeline.length,
+        progress: progressTimeline.length,
+        frames: animationFrames.length,
+        captures: lifecycleCaptures.length,
+      },
+      latestEvents: eventTimeline.slice(-8),
+    }, null, 2);
     if (statusNode) statusNode.textContent = frozen ? "Measurements frozen" : "Measurements live";
   };
+  window.__gfMobileLoaderDiagnosticsReport = report;
   const snapshot = (stage, options = {}) => {
     if (frozen && !options.force) return null;
     const entry = {
@@ -568,6 +984,316 @@
     }, 1500);
     timers.push(timer);
   };
+  const loadingTextFontState = () => {
+    const element = loader?.querySelector(".gf-loading");
+    if (!element) return null;
+    const style = getComputedStyle(element);
+    return {
+      fontFamily: style.fontFamily,
+      fontSize: style.fontSize,
+      lineHeight: style.lineHeight,
+      letterSpacing: style.letterSpacing,
+      fontWeight: style.fontWeight,
+      fontStyle: style.fontStyle,
+    };
+  };
+  const fontFacesFromEvent = (event) =>
+    Array.from(event?.fontfaces || []).map((font) => ({
+      family: font.family,
+      status: font.status,
+      style: font.style,
+      weight: font.weight,
+      stretch: font.stretch,
+      display: font.display,
+    }));
+  const recordFontEvent = (type, event = null) => {
+    const entry = {
+      at: now(),
+      type,
+      status: document.fonts ? document.fonts.status : "unsupported",
+      fontfaces: fontFacesFromEvent(event),
+      loadingText: loadingTextFontState(),
+    };
+    fontTimeline.push(entry);
+    const timelineEvent = recordEvent("fonts", type, entry);
+    lastFontEventId = timelineEvent.id;
+    return timelineEvent;
+  };
+  const startFontDiagnostics = () => {
+    if (!document.fonts) {
+      recordFontEvent("unsupported");
+      return;
+    }
+    recordFontEvent("initial-status");
+    let loadingCycle = 0;
+    if (typeof document.fonts.addEventListener !== "function") {
+      limitations.push("FontFaceSet loading events are not supported by this browser; document.fonts.ready remains recorded.");
+    }
+    ["loading", "loadingdone", "loadingerror"].forEach((type) => {
+      const handler = (event) => {
+        recordFontEvent(type, event);
+        if (type === "loading") {
+          const cycle = ++loadingCycle;
+          document.fonts.ready.then(() => {
+            if (cycle !== loadingCycle) return;
+            const readyEvent = recordFontEvent("ready-after-loading-cycle");
+            requestLifecycleCapture("fonts ready", readyEvent, { cycle });
+            recordGeometry("fonts-ready-after-loading-cycle");
+          });
+        }
+      };
+      if (typeof document.fonts.addEventListener === "function") {
+        document.fonts.addEventListener(type, handler);
+        cleanupFunctions.push(() => document.fonts.removeEventListener(type, handler));
+      }
+    });
+    document.fonts.ready.then(() => {
+      const event = recordFontEvent("ready");
+      requestLifecycleCapture("fonts ready", event);
+      recordGeometry("fonts-ready");
+    });
+  };
+  const startMessageDiagnostics = () => {
+    const messageNode = loader?.querySelector("#gfLoadingText");
+    if (!messageNode) return;
+    lastMessageText = messageNode.textContent || "";
+    const initial = {
+      at: now(),
+      previous: null,
+      current: lastMessageText,
+      reason: "initial",
+      font: loadingTextFontState(),
+    };
+    messageTimeline.push(initial);
+    lastMessageEventId = recordEvent("loading-message", "initial", initial).id;
+    const observer = new MutationObserver(() => {
+      const current = messageNode.textContent || "";
+      if (current === lastMessageText) return;
+      const entry = {
+        at: now(),
+        previous: lastMessageText,
+        current,
+        reason: "character-data-or-child-list-mutation",
+        font: loadingTextFontState(),
+      };
+      messageTimeline.push(entry);
+      const event = recordEvent("loading-message", "changed", entry);
+      lastMessageEventId = event.id;
+      lastMessageText = current;
+      requestAnimationFrame(() => recordGeometry("loading-message-change"));
+    });
+    observer.observe(messageNode, { subtree: true, childList: true, characterData: true });
+    observers.push(observer);
+  };
+  const startProgressDiagnostics = () => {
+    const fill = loader?.querySelector(".gf-progress-fill");
+    if (!fill) return;
+    recordProgressChanges("initial");
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName !== "style") return;
+        recordProgressChanges("inline-style-mutation");
+        requestAnimationFrame(() => recordProgressChanges("frame-after-inline-style-mutation"));
+      });
+    });
+    observer.observe(fill, { attributes: true, attributeFilter: ["style"], attributeOldValue: true });
+    observers.push(observer);
+  };
+  const startResizeDiagnostics = () => {
+    if (typeof ResizeObserver !== "function") {
+      recordEvent("resize-observer", "unsupported");
+      return;
+    }
+    const targets = {
+      html: document.documentElement,
+      body: document.body,
+      loaderRoot: loader,
+      composition: loader?.querySelector(".gf-composition"),
+    };
+    const names = new Map();
+    Object.entries(targets).forEach(([name, element]) => {
+      if (!element) return;
+      names.set(element, name);
+      const rect = element.getBoundingClientRect();
+      lastResizeState.set(name, { width: rect.width, height: rect.height });
+    });
+    const observer = new ResizeObserver((entries) => {
+      entries.forEach((resizeEntry) => {
+        const target = names.get(resizeEntry.target) || describeElement(resizeEntry.target);
+        const rect = resizeEntry.target.getBoundingClientRect();
+        const current = { width: rect.width, height: rect.height };
+        const previous = lastResizeState.get(target) || null;
+        if (resizeNotifiedTargets.has(target) && JSON.stringify(previous) === JSON.stringify(current)) return;
+        const entry = { at: now(), target, previous, current };
+        resizeTimeline.push(entry);
+        recordEvent("resize-observer", "resize", entry);
+        lastResizeState.set(target, current);
+        resizeNotifiedTargets.add(target);
+      });
+    });
+    names.forEach((name, element) => observer.observe(element));
+    observers.push(observer);
+  };
+  const startLoaderMutationDiagnostics = () => {
+    const targets = {
+      loaderRoot: loader,
+      composition: loader?.querySelector(".gf-composition"),
+    };
+    Object.entries(targets).forEach(([targetName, element]) => {
+      if (!element) return;
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          const newValue = mutation.target.getAttribute(mutation.attributeName);
+          const entry = {
+            at: now(),
+            target: targetName,
+            attribute: mutation.attributeName,
+            previous: mutation.oldValue,
+            current: newValue,
+          };
+          loaderMutationTimeline.push(entry);
+          const event = recordEvent("loader-mutation", "attribute-changed", entry);
+          lastMutationEventId = event.id;
+          if (mutation.attributeName === "style") {
+            recordCssVariableChanges(targetName, mutation.target);
+          }
+          if (mutation.attributeName === "class" && targetName === "loaderRoot") {
+            if (loader.classList.contains("gf-galaxy-loaded") && !backgroundClassRecorded) {
+              backgroundClassRecorded = true;
+              const backgroundEntry = {
+                at: now(),
+                type: "background-class-applied",
+                className: loader.className,
+              };
+              backgroundTimeline.push(backgroundEntry);
+              const backgroundEvent = recordEvent("background", "class-applied", backgroundEntry);
+              lastBackgroundEventId = backgroundEvent.id;
+              requestAnimationFrame((firstFrame) => {
+                const firstEntry = {
+                  at: atForPerformanceTime(firstFrame),
+                  type: "first-animation-frame-after-class",
+                  frameTimestamp: firstFrame,
+                };
+                backgroundTimeline.push(firstEntry);
+                const firstEvent = recordEvent("background", "first-animation-frame-after-class", firstEntry);
+                addDependency(backgroundEvent, firstEvent, "scheduled-next-animation-frame");
+                requestAnimationFrame((afterPaintFrame) => {
+                  const paintEntry = {
+                    at: atForPerformanceTime(afterPaintFrame),
+                    type: "first-frame-after-possible-paint",
+                    frameTimestamp: afterPaintFrame,
+                  };
+                  backgroundTimeline.push(paintEntry);
+                  const paintEvent = recordEvent("background", "first-frame-after-possible-paint", paintEntry);
+                  addDependency(firstEvent, paintEvent, "next-frame-paint-boundary-proxy", "inferred");
+                });
+              });
+            }
+            if (loader.classList.contains("gf-is-hidden")) {
+              requestLifecycleCapture("loader hidden", event, { className: loader.className });
+            }
+          }
+          requestAnimationFrame(() => recordGeometry("loader-attribute-mutation"));
+        });
+      });
+      observer.observe(element, { attributes: true, attributeOldValue: true });
+      observers.push(observer);
+    });
+  };
+  const relevantResourceType = (url) => {
+    if (/\/loaders\/(mobile|desktop)%?20loader%?20images\//i.test(url) || /\/loaders\/(mobile|desktop) loader images\//i.test(decodeURI(url))) return "background-image";
+    if (/\/loaders\/logos\//i.test(url)) return "logo-image";
+    if (/\.(woff2?|ttf)(?:$|\?)/i.test(url)) return "font";
+    if (/gymfusion-loader\.js(?:$|\?)/i.test(url)) return "loader-script";
+    return null;
+  };
+  const probeBackgroundDecode = (url, responseEvent) => {
+    if (decodedBackgroundUrls.has(url)) return;
+    decodedBackgroundUrls.add(url);
+    const image = new Image();
+    const startEntry = { at: now(), type: "diagnostic-decode-probe-start", url };
+    backgroundTimeline.push(startEntry);
+    const startEvent = recordEvent("background", "diagnostic-decode-probe-start", startEntry);
+    if (responseEvent) addDependency(responseEvent, startEvent, "identified-resource-for-decode-probe");
+    image.onload = async () => {
+      const loadEntry = {
+        at: now(),
+        type: "diagnostic-image-load",
+        url,
+        naturalWidth: image.naturalWidth,
+        naturalHeight: image.naturalHeight,
+      };
+      backgroundTimeline.push(loadEntry);
+      const loadEvent = recordEvent("background", "diagnostic-image-load", loadEntry);
+      addDependency(startEvent, loadEvent, "image-load-completed");
+      try {
+        if (typeof image.decode === "function") await image.decode();
+        const decodeEntry = { at: now(), type: "diagnostic-decode-complete", url };
+        backgroundTimeline.push(decodeEntry);
+        const decodeEvent = recordEvent("background", "diagnostic-decode-complete", decodeEntry);
+        addDependency(loadEvent, decodeEvent, "decode-resolved");
+        requestLifecycleCapture("background decoded", decodeEvent, { url, scope: "diagnostic-probe" });
+      } catch (error) {
+        const errorEntry = { at: now(), type: "diagnostic-decode-error", url, error: String(error) };
+        backgroundTimeline.push(errorEntry);
+        recordEvent("background", "diagnostic-decode-error", errorEntry);
+      }
+    };
+    image.onerror = () => {
+      const entry = { at: now(), type: "diagnostic-image-error", url };
+      backgroundTimeline.push(entry);
+      recordEvent("background", "diagnostic-image-error", entry);
+    };
+    image.src = url;
+  };
+  const startResourceDiagnostics = () => {
+    const seenEntries = new Set();
+    const recordResource = (entry) => {
+      const resourceType = relevantResourceType(entry.name);
+      if (!resourceType) return;
+      const signature = `${entry.name}|${entry.startTime}|${entry.responseEnd}`;
+      if (seenEntries.has(signature)) return;
+      seenEntries.add(signature);
+      const item = {
+        name: entry.name,
+        resourceType,
+        initiatorType: entry.initiatorType,
+        startTime: entry.startTime,
+        requestStart: entry.requestStart,
+        responseStart: entry.responseStart,
+        responseEnd: entry.responseEnd,
+        duration: entry.duration,
+        transferSize: entry.transferSize,
+        encodedBodySize: entry.encodedBodySize,
+        decodedBodySize: entry.decodedBodySize,
+      };
+      resourceTimeline.push(item);
+      const requestEvent = recordEvent("resource", "request-start", item, {
+        at: atForPerformanceTime(entry.requestStart || entry.startTime),
+      });
+      const responseEvent = recordEvent("resource", "response-received", item, {
+        at: atForPerformanceTime(entry.responseStart || entry.responseEnd),
+      });
+      const completeEvent = recordEvent("resource", "response-complete", item, {
+        at: atForPerformanceTime(entry.responseEnd),
+      });
+      addDependency(requestEvent, responseEvent, "network-response-started");
+      addDependency(responseEvent, completeEvent, "network-response-completed");
+      if (resourceType === "background-image") probeBackgroundDecode(entry.name, completeEvent);
+    };
+    performance.getEntriesByType?.("resource").forEach(recordResource);
+    if (typeof PerformanceObserver !== "function") {
+      recordEvent("resource", "performance-observer-unsupported");
+      return;
+    }
+    try {
+      const observer = new PerformanceObserver((list) => list.getEntries().forEach(recordResource));
+      observer.observe({ type: "resource", buffered: true });
+      cleanupFunctions.push(() => observer.disconnect());
+    } catch (error) {
+      recordEvent("resource", "performance-observer-error", { error: String(error) });
+    }
+  };
   const stopDiagnostics = () => {
     if (viewportDiagnosticsCleanup) {
       viewportDiagnosticsCleanup();
@@ -575,6 +1301,7 @@
     }
     observers.splice(0).forEach((observer) => observer.disconnect());
     timers.splice(0).forEach((timer) => window.clearTimeout(timer));
+    cleanupFunctions.splice(0).forEach((cleanup) => cleanup());
   };
   const closeDiagnostics = () => {
     stopDiagnostics();
@@ -629,7 +1356,13 @@
     reason,
     timestamp,
   }) => {
-    const content = typeof newContent === "string" ? newContent : node ? node.getAttribute("content") : null;
+    const content = changeType === "removed"
+      ? null
+      : typeof newContent === "string"
+      ? newContent
+      : node
+      ? node.getAttribute("content")
+      : null;
     const entry = {
       at: typeof timestamp === "number" ? timestamp : now(),
       reason,
@@ -642,6 +1375,7 @@
       parent: describeElement(parent),
     };
     viewportMetaTimeline.push(entry);
+    recordEvent("meta-viewport", changeType, entry);
   };
   const recordViewportMetaObservation = (node, parent, reason, timestamp) => {
     if (!node || node.nodeType !== Node.ELEMENT_NODE || node.tagName !== "META") return;
@@ -682,27 +1416,69 @@
       recordViewportMetaObservation(meta, root, reason, timestamp);
     });
   };
+  const recordRemovedViewportMeta = (node, parent, reason, timestamp) => {
+    if (!node || node.nodeType !== Node.ELEMENT_NODE || node.tagName !== "META") return;
+    const previous = viewportMetaNodeState.get(node) || {
+      content: viewportMetaContent(node),
+      isViewport: isViewportMetaNode(node),
+    };
+    if (!previous.isViewport && !isViewportMetaNode(node)) return;
+    recordViewportMetaTimeline({
+      changeType: "removed",
+      node,
+      parent,
+      previousContent: previous.content,
+      newContent: null,
+      reason,
+      timestamp,
+    });
+  };
+  const scanForRemovedViewportMeta = (root, parent, reason, timestamp) => {
+    if (!root || root.nodeType !== Node.ELEMENT_NODE) return;
+    if (root.tagName === "META") recordRemovedViewportMeta(root, parent, reason, timestamp);
+    root.querySelectorAll("meta").forEach((meta) => {
+      recordRemovedViewportMeta(meta, root, reason, timestamp);
+    });
+  };
   const recordIframeNode = (node, parent, timestamp, reason) => {
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return;
     if (node.tagName !== "IFRAME" || seenIframes.has(node)) return;
     seenIframes.add(node);
-    iframeTimeline.push({
+    const source = (() => {
+      try {
+        return node.getAttribute("src") || node.src || null;
+      } catch {
+        return null;
+      }
+    })();
+    const iframeEntry = {
       at: typeof timestamp === "number" ? timestamp : now(),
       reason,
       added: describeAddedNode(node),
       containingNode: describeAddedNode(parent) || describeElement(parent),
       parent: describeElement(parent),
-      src: (() => {
-        try {
-          return node.getAttribute("src") || node.src || null;
-        } catch {
-          return null;
-        }
-      })(),
+      src: source,
+      iframeCount: document.querySelectorAll("iframe").length,
       state: viewportState(),
       coincidesWithViewportChange:
         lastViewportChangeAt !== null && Math.abs((typeof timestamp === "number" ? timestamp : now()) - lastViewportChangeAt) <= 75,
-    });
+    };
+    iframeTimeline.push(iframeEntry);
+    iframeState.set(node, { src: source, parent: describeElement(parent) });
+    const eventEntry = {
+      at: iframeEntry.at,
+      action: "inserted",
+      iframeCount: iframeEntry.iframeCount,
+      src: source,
+      parent: iframeEntry.parent,
+      reason,
+    };
+    iframeEvents.push(eventEntry);
+    const event = recordEvent("iframe", "inserted", eventEntry);
+    if (!firstIframeCaptured) {
+      firstIframeCaptured = true;
+      requestLifecycleCapture("first iframe inserted", event, eventEntry);
+    }
   };
   const scanForIframes = (root, parent, timestamp, reason) => {
     if (!root || root.nodeType !== Node.ELEMENT_NODE) return;
@@ -714,28 +1490,37 @@
       recordIframeNode(iframe, root, timestamp, reason);
     });
   };
+  const recordIframeRemoval = (node, parent, timestamp, reason) => {
+    if (!node || node.nodeType !== Node.ELEMENT_NODE || node.tagName !== "IFRAME") return;
+    const previous = iframeState.get(node) || {};
+    const entry = {
+      at: typeof timestamp === "number" ? timestamp : now(),
+      action: "removed",
+      iframeCount: document.querySelectorAll("iframe").length,
+      src: previous.src || node.getAttribute("src") || null,
+      parent: previous.parent || describeElement(parent),
+      reason,
+    };
+    iframeEvents.push(entry);
+    recordEvent("iframe", "removed", entry);
+  };
+  const scanForRemovedIframes = (root, parent, timestamp, reason) => {
+    if (!root || root.nodeType !== Node.ELEMENT_NODE) return;
+    if (root.tagName === "IFRAME") {
+      recordIframeRemoval(root, parent, timestamp, reason);
+      return;
+    }
+    root.querySelectorAll("iframe").forEach((iframe) => {
+      recordIframeRemoval(iframe, root, timestamp, reason);
+    });
+  };
   const startViewportDiagnostics = () => {
     captureViewportSample("diagnostic start", { force: true });
 
     const sampleTimer = window.setInterval(() => {
-      const at = now();
-      if (at > 3000 || viewportTrackingStopped) {
-        return;
-      }
-      captureViewportSample("50ms sample", { always: true });
+      captureViewportSample("50ms change poll");
     }, 50);
     timers.push(sampleTimer);
-
-    const stopTimer = window.setTimeout(() => {
-      viewportTrackingStopped = true;
-      captureViewportSample("viewport diagnostics stopped", { force: true });
-      window.clearInterval(sampleTimer);
-      if (viewportDiagnosticsCleanup) {
-        viewportDiagnosticsCleanup();
-        viewportDiagnosticsCleanup = null;
-      }
-    }, 3500);
-    timers.push(stopTimer);
 
     viewportEventHandlers.windowResize = (event) => recordViewportEvent("window.resize", event || {});
     viewportEventHandlers.orientationchange = (event) =>
@@ -798,8 +1583,8 @@
               state: viewportState(),
             });
           }
-          scanForViewportMeta(node, mutation.target, "mutation-removed", timestamp);
-          scanForIframes(node, mutation.target, timestamp, "mutation-removed");
+          scanForRemovedViewportMeta(node, mutation.target, "mutation-removed", timestamp);
+          scanForRemovedIframes(node, mutation.target, timestamp, "mutation-removed");
         });
       });
     });
@@ -811,19 +1596,37 @@
     });
     observers.push(viewportObserver);
 
-    const initialViewportMeta = getViewportMetaElement();
-    viewportMetaTimeline.push({
-      at: now(),
-      reason: "initial observation",
-      changeType: initialViewportMeta ? "observed" : "absent",
-      exists: Boolean(initialViewportMeta),
-      previousContent: null,
-      content: initialViewportMeta ? initialViewportMeta.getAttribute("content") : null,
-      newContent: initialViewportMeta ? initialViewportMeta.getAttribute("content") : null,
-    });
-    if (initialViewportMeta) {
-      storeViewportMetaState(initialViewportMeta);
+    const initialViewportMetas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
+    if (!initialViewportMetas.length) {
+      const entry = {
+        at: now(),
+        reason: "initial observation",
+        changeType: "absent",
+        exists: false,
+        previousContent: null,
+        content: null,
+        newContent: null,
+      };
+      viewportMetaTimeline.push(entry);
+      recordEvent("meta-viewport", "absent", entry);
     }
+    initialViewportMetas.forEach((initialViewportMeta) => {
+      const entry = {
+        at: now(),
+        reason: "initial observation",
+        changeType: "observed",
+        exists: true,
+        previousContent: null,
+        content: initialViewportMeta.getAttribute("content"),
+        newContent: initialViewportMeta.getAttribute("content"),
+        mutationTarget: describeElement(initialViewportMeta),
+        parent: describeElement(initialViewportMeta.parentElement),
+      };
+      viewportMetaTimeline.push(entry);
+      recordEvent("meta-viewport", "observed", entry);
+      storeViewportMetaState(initialViewportMeta);
+    });
+    scanForIframes(document.documentElement, document.documentElement, now(), "initial-scan");
 
     if (document.readyState !== "loading") {
       viewportEvents.push({
@@ -878,6 +1681,13 @@
     originalLoaderRemove = loader.remove.bind(loader);
     loader.remove = function () {
       removalIntercepted = true;
+      productionRemovalAttempted = true;
+      const removalEvent = recordEvent("loader", "removal-attempt", {
+        className: loader.className,
+        connected: loader.isConnected,
+      });
+      requestLifecycleCapture("loader removal attempt", removalEvent);
+      recordGeometry("loader-removal-attempt");
       recordClass("final mode before production removal", true);
       snapshot("loader-removal attempt intercepted", { force: true });
       loader.classList.remove("gf-is-hidden");
@@ -886,6 +1696,12 @@
   const observeLoader = () => {
     if (!loader) return;
     recordClass("initial bootstrap class observed", true);
+    const classificationEvent = recordEvent("loader", "classified", {
+      className: loader.className,
+      mode: modeOf(loader.className),
+      pathname: window.location.pathname,
+    });
+    requestLifecycleCapture("loader classified", classificationEvent);
     interceptRemoval();
     const classObserver = new MutationObserver(() => {
       recordClass("loader class mutation observed");
@@ -920,6 +1736,21 @@
   const attachToLoader = (foundLoader) => {
     if (loader || !foundLoader) return;
     loader = foundLoader;
+    const createdEvent = recordEvent("loader", "created", {
+      className: loader.className,
+      shellVersion: loader.dataset.gfShellVersion || null,
+      pageMode: loader.dataset.gfPageMode || null,
+    });
+    discoverCssVariables();
+    recordCssVariableChanges("documentElement", document.documentElement);
+    recordCssVariableChanges("loader", loader);
+    startMessageDiagnostics();
+    startProgressDiagnostics();
+    startResizeDiagnostics();
+    startLoaderMutationDiagnostics();
+    recordGeometry("loader-created");
+    startAnimationFrameDiagnostics();
+    requestLifecycleCapture("loader created", createdEvent);
     createPanel();
     snapshot("loader first detected", { force: true });
     observeLoader();
@@ -966,7 +1797,10 @@
   discoveryObserver.observe(document.documentElement, { childList: true, subtree: true });
   observers.push(discoveryObserver);
 
+  installSafeAreaProbe();
   snapshot("diagnostic script started", { force: true });
   startViewportDiagnostics();
+  startFontDiagnostics();
+  startResourceDiagnostics();
   waitForLoader();
 })();
