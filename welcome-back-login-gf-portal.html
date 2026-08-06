@@ -32,16 +32,12 @@
     }
 
     :root {
-      --ink: #ffffff;
-      --ink-soft: rgba(255, 255, 255, 0.8);
-      --base: #141414;
-      --panel: rgba(0, 0, 0, 0.12);
-      --field: rgba(224, 224, 224, 0.98);
-      --field-text: #1a1a1a;
-      --hot: #ff4a57;
-      --cool: #b13cff;
-      --line: rgba(255, 255, 255, 0.92);
-      --shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
+      --ink: rgba(18, 18, 18, 0.96);
+      --ink-soft: rgba(18, 18, 18, 0.72);
+      --field-text: rgba(22, 22, 22, 0.9);
+      --line: rgba(24, 24, 24, 0.86);
+      --line-soft: rgba(24, 24, 24, 0.14);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
     }
 
     html,
@@ -88,36 +84,6 @@
       animation: rise 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .artboard::before {
-      content: "";
-      position: absolute;
-      inset: -30px -36px -34px;
-      z-index: -1;
-      pointer-events: none;
-      background:
-        radial-gradient(ellipse at 50% 22%, rgba(0, 0, 0, 0.84) 0%, rgba(0, 0, 0, 0.66) 36%, rgba(0, 0, 0, 0.22) 62%, transparent 80%),
-        linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.2) 68%, transparent 100%);
-      filter: blur(2px);
-    }
-
-    .artboard::after {
-      content: "";
-      position: absolute;
-      inset: -18px -28px -22px;
-      z-index: -1;
-      pointer-events: none;
-      background-image: url("https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/purple_spiral.svg");
-      background-repeat: repeat;
-      background-size: 34px 34px;
-      background-position:
-        0 18px,
-        18px 0;
-      opacity: 0.28;
-      filter: saturate(2.2) brightness(1.08);
-      mask-image: radial-gradient(circle at 50% 26%, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.86) 40%, rgba(0, 0, 0, 0.18) 71%, transparent 92%);
-      -webkit-mask-image: radial-gradient(circle at 50% 26%, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.86) 40%, rgba(0, 0, 0, 0.18) 71%, transparent 92%);
-    }
-
     .title-wrap {
       width: 100%;
       position: relative;
@@ -125,30 +91,6 @@
       place-items: center;
       padding-top: clamp(8px, 1.8vw, 18px);
       padding-bottom: clamp(6px, 1.6vw, 14px);
-    }
-
-    .title-band {
-      position: absolute;
-      left: 50%;
-      top: 48%;
-      width: min(920px, 108vw);
-      height: 78px;
-      transform: translate(-50%, -50%);
-      background-image: url("https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/purple_spiral.svg");
-      background-repeat: repeat-x;
-      background-size: 40px 40px;
-      background-position: center;
-      opacity: 0.62;
-      mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.96) 14%, rgba(0, 0, 0, 0.96) 86%, transparent 100%);
-      -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.96) 14%, rgba(0, 0, 0, 0.96) 86%, transparent 100%);
-      filter: hue-rotate(344deg) saturate(2.6) brightness(1.16);
-      pointer-events: none;
-    }
-
-    .title-band.cool {
-      transform: translate(-50%, -42%) scaleY(0.78);
-      opacity: 0.38;
-      filter: hue-rotate(286deg) saturate(2.8) brightness(1.16);
     }
 
     .title {
@@ -162,35 +104,16 @@
       text-transform: uppercase;
       text-align: center;
       color: var(--ink);
-      text-shadow:
-        0 3px 0 rgba(0, 0, 0, 0.2),
-        0 12px 26px rgba(0, 0, 0, 0.18);
       transform: translateX(0.02em);
     }
 
     .title::before,
     .title::after {
-      content: attr(data-text);
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.78;
-    }
-
-    .title::before {
-      transform: translate(-0.1em, 0.03em);
-      color: var(--hot);
-      clip-path: inset(0 49.2% 0 0);
-    }
-
-    .title::after {
-      transform: translate(0.11em, -0.02em);
-      color: var(--cool);
-      clip-path: inset(0 0 0 49.4%);
+      content: none;
     }
 
     .form {
-      width: min(620px, 100%);
+      width: min(400px, 100%);
       display: grid;
       gap: clamp(18px, 2.8vw, 26px);
       justify-items: start;
@@ -213,7 +136,7 @@
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--ink);
-      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.14);
+      text-shadow: none;
     }
 
     .field-shell {
@@ -222,67 +145,29 @@
       height: clamp(72px, 10vw, 102px);
     }
 
-    .field-shell::before,
-    .field-shell::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background-image: url("https://cdn.jsdelivr.net/gh/J35S1CA007/gymfusion-assets@main/purple_spiral.svg");
-      background-repeat: repeat;
-      background-size: 46px 46px;
-      background-position: center;
-      opacity: 0.44;
-      mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.96) 14%, rgba(0, 0, 0, 0.96) 86%, transparent 100%);
-      -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.96) 14%, rgba(0, 0, 0, 0.96) 86%, transparent 100%);
-      mix-blend-mode: screen;
-    }
-
-    .field--warm .field-shell::before {
-      filter: hue-rotate(350deg) saturate(2.7) brightness(1.12);
-    }
-
-    .field--warm .field-shell::after {
-      opacity: 0.28;
-      transform: translateY(10px) scale(1.04);
-      filter: hue-rotate(8deg) saturate(2.6) brightness(1.1);
-    }
-
-    .field--cool .field-shell::before {
-      filter: hue-rotate(284deg) saturate(2.7) brightness(1.12);
-    }
-
-    .field--cool .field-shell::after {
-      opacity: 0.28;
-      transform: translateY(10px) scale(1.04);
-      filter: hue-rotate(317deg) saturate(2.6) brightness(1.1);
-    }
-
     .input {
       position: relative;
       z-index: 1;
       width: 100%;
       height: 100%;
-      border: 0;
+      border: 1px solid var(--line);
       border-radius: 0;
       padding: 0 clamp(22px, 3vw, 34px);
-      background: var(--field);
+      background: transparent;
       color: var(--field-text);
       font-size: clamp(1.05rem, 2.5vw, 1.55rem);
       line-height: 1;
       outline: none;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+      box-shadow: none;
     }
 
     .input::placeholder {
-      color: rgba(26, 26, 26, 0.82);
+      color: rgba(22, 22, 22, 0.52);
       opacity: 1;
     }
 
     .input:focus-visible {
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.12),
-        0 0 0 3px rgba(255, 255, 255, 0.26);
+      box-shadow: 0 0 0 3px rgba(24, 24, 24, 0.12);
     }
 
     .cta-wrap {
@@ -293,14 +178,14 @@
     }
 
     .cta {
-      min-width: min(100%, 312px);
+      width: min(250px, 100%);
       height: clamp(72px, 10vw, 94px);
       padding: 0 clamp(28px, 4vw, 42px);
       border: 2px solid var(--line);
-      background: rgba(0, 0, 0, 0.8);
+      background: transparent;
       color: var(--ink);
       font-family: "Gamuth Sans", system-ui, sans-serif;
-      font-size: clamp(1.7rem, 4.6vw, 2.45rem);
+      font-size: 25px;
       line-height: 1;
       font-weight: 700;
       letter-spacing: -0.03em;
@@ -311,8 +196,8 @@
 
     .cta:hover {
       transform: translateY(-1px);
-      background: rgba(0, 0, 0, 0.9);
-      box-shadow: 0 34px 80px rgba(0, 0, 0, 0.32);
+      background: rgba(0, 0, 0, 0.03);
+      box-shadow: 0 20px 36px rgba(0, 0, 0, 0.08);
     }
 
     .cta:focus-visible {
@@ -336,13 +221,59 @@
         gap: 16px;
       }
 
-      .title-band {
-        height: 58px;
-        background-size: 34px 34px;
+      .form {
+        gap: 16px;
+      }
+    }
+
+    @media (min-width: 701px) {
+      .artboard {
+        width: min(544px, 100%);
+        background: transparent;
+        border: 1px solid #ffffff;
+        padding: clamp(24px, 4vw, 40px);
+      }
+
+      .title {
+        font-size: 70px;
+        color: #ffffff;
+        white-space: nowrap;
+      }
+
+      .label {
+        font-size: 19px;
+        color: #ffffff;
       }
 
       .form {
-        gap: 16px;
+        width: min(355px, 100%);
+        justify-items: center;
+      }
+
+      .field-shell {
+        height: 60px;
+      }
+
+      .input {
+        font-size: 17.5px;
+        background: #ffffff;
+        border-color: #ffffff;
+      }
+
+      .cta {
+        width: 150px;
+        height: 60px;
+        font-size: 18px;
+        padding: 0;
+        background: #000000;
+        color: #ffffff;
+        border-color: #ffffff;
+      }
+
+      .cta:hover {
+        background: #ffffff;
+        color: #000000;
+        border-color: #000000;
       }
     }
 
@@ -359,8 +290,6 @@
   <main class="embed" aria-label="Welcome back login embed">
     <section class="artboard">
       <div class="title-wrap">
-        <div class="title-band" aria-hidden="true"></div>
-        <div class="title-band cool" aria-hidden="true"></div>
         <h1 class="title" data-text="WELCOME BACK">WELCOME BACK</h1>
       </div>
 
